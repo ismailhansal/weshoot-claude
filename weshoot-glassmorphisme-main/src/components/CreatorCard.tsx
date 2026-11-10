@@ -37,7 +37,7 @@ export function CreatorCard({ creator: c, featured = false }: { creator: Creator
           style={{ background: "linear-gradient(180deg, transparent, oklch(0 0 0 / 0.85))" }}
         >
           <div className="flex items-end justify-between gap-3">
-            <div className="min-w-0">
+            <div className="min-w-0 flex-1">
               <div className="flex items-center gap-2">
                 <img src={c.avatar} alt={c.name} loading="lazy" className="h-9 w-9 rounded-lg object-cover border border-white/20" />
                 <div className="min-w-0">
@@ -58,8 +58,9 @@ export function CreatorCard({ creator: c, featured = false }: { creator: Creator
                 <Star className="h-3 w-3 fill-primary text-primary" />
                 {c.rating} <span className="text-white/50">({c.reviews})</span>
               </div>
-              <div className="mt-1 text-display text-2xl text-white">
-                <span className="text-sm text-white/70">À partir de </span>€{c.price}
+              <div className="mt-1 text-[11px] text-white/70">À partir de</div>
+              <div className="text-display text-2xl text-white leading-none">
+                {c.price} <span className="text-xs font-medium text-white/70">MAD</span>
               </div>
             </div>
           </div>

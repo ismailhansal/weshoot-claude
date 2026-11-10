@@ -144,7 +144,7 @@ function BookingFlow() {
     (step === "date" && city.trim() !== "" && dateIsValid) ||
     (step === "brief" && briefIsValid);
 
-  const amount = selectedOffer ? `${selectedOffer.price} €` : budgetValue > 0 ? `Jusqu'à ${budgetValue} €` : "Sur devis";
+  const amount = selectedOffer ? `${selectedOffer.price} MAD` : budgetValue > 0 ? `Jusqu'à ${budgetValue} MAD` : "Sur devis";
   const dateLabel = dateChoice === "fixed" ? (date ? prettyDate(date, time) : "") : flexibleDate;
 
   const changeVideoCount = (value: string) => {
@@ -177,7 +177,7 @@ function BookingFlow() {
           showPhotoFields ? `Photos : ${photoCount}` : "",
           showVideoFields ? `Vidéos : ${videoSpecs.length}\n${videoSummary.join("\n")}` : "",
           delivery !== "Pas de préférence" ? `Livraison souhaitée : ${delivery}` : "",
-          budgetValue > 0 ? `Budget maximum : ${budgetValue} €` : "",
+          budgetValue > 0 ? `Budget maximum : ${budgetValue} MAD` : "",
         ].filter(Boolean).join("\n")
       : `Offre sélectionnée : ${selectedOffer?.name}`;
 
@@ -368,7 +368,7 @@ function BookingFlow() {
                                 </span>
                                 <span className="mt-0.5 block text-xs text-muted-foreground">{offer.duration}</span>
                               </span>
-                              <span className="text-display shrink-0 text-2xl">{offer.price} €</span>
+                              <span className="text-display shrink-0 text-2xl">{offer.price} MAD</span>
                             </button>
                           ))}
                         </div>
@@ -384,8 +384,8 @@ function BookingFlow() {
                           <textarea id="project-description" maxLength={PROJECT_DESCRIPTION_MAX} value={description} onChange={(event) => setDescription(event.target.value)} rows={5} placeholder="Ton idée, l'ambiance recherchée, les contraintes…" className={`${fieldClass} h-auto resize-y py-3`} />
                         </div>
                         <div>
-                          <label htmlFor="project-budget" className={labelClass}>Budget maximum (€) (optionnel)</label>
-                          <input id="project-budget" type="number" inputMode="numeric" min="1" value={budget} onChange={(event) => setBudget(event.target.value)} placeholder="Ex. 800" className={fieldClass} />
+                          <label htmlFor="project-budget" className={labelClass}>Budget maximum (MAD) (optionnel)</label>
+                          <input id="project-budget" type="number" inputMode="numeric" min="1" value={budget} onChange={(event) => setBudget(event.target.value)} placeholder="Ex. 5000" className={fieldClass} />
                         </div>
                       </div>
                     )}

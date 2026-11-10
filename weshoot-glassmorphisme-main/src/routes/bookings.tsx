@@ -68,7 +68,7 @@ function Bookings() {
                     <div className="mt-1 flex flex-wrap gap-x-4 gap-y-1 text-xs text-muted-foreground">
                       <span className="flex items-center gap-1"><CalendarCheck className="h-3.5 w-3.5" /> {b.day} {b.createdAt.slice(0, 0)}Janv. · {b.time}</span>
                       <span className="flex items-center gap-1"><MapPin className="h-3.5 w-3.5" /> {b.location || b.city}</span>
-                      <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {b.price > 0 ? `€${b.price}` : "Sur devis"}</span>
+                      <span className="flex items-center gap-1"><Clock className="h-3.5 w-3.5" /> {b.price > 0 ? `${b.price} MAD` : "Sur devis"}</span>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 shrink-0">

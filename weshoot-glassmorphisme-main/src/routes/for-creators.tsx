@@ -10,7 +10,7 @@ export const Route = createFileRoute("/for-creators")({
   head: () => ({
     meta: [
       { title: "Devenir créateur · WeShoot" },
-      { name: "description", content: "Publiez votre portfolio sur WeShoot, fixez vos tarifs et recevez des réservations de clients qualifiés. 0€ d'abonnement." },
+      { name: "description", content: "Publiez votre portfolio sur WeShoot, fixez vos tarifs et recevez des réservations de clients qualifiés. 0 MAD d'abonnement." },
       { property: "og:title", content: "Devenir créateur · WeShoot" },
       { property: "og:description", content: "Publiez votre portfolio et recevez des réservations de clients qualifiés." },
       { property: "og:type", content: "website" },
@@ -23,7 +23,7 @@ export const Route = createFileRoute("/for-creators")({
 const benefits = [
   { icon: TrendingUp, t: "Des clients qui viennent à vous", d: "Votre feed travaille 24/7 : clients qualifiés, brief déjà rempli au moment du booking." },
   { icon: Wallet, t: "Paiement garanti", d: "Le client paie d'avance via un séquestre sécurisé. Vous êtes payé à la livraison des fichiers." },
-  { icon: Globe, t: "Une vitrine internationale", d: "Paris, Berlin, Tokyo… Votre portfolio exposé dans toutes les villes où vous shooterez." },
+  { icon: Globe, t: "Une vitrine dans tout le Maroc", d: "Casablanca, Marrakech, Rabat… Votre portfolio exposé dans toutes les villes où vous shooterez." },
   { icon: Star, t: "Votre réputation", d: "Les avis vérifiés construisent votre crédibilité et font grimper votre position dans le feed." },
 ];
 
@@ -80,7 +80,7 @@ function ForCreators() {
                 <div className="mt-1 text-[11px] text-muted-foreground uppercase tracking-widest">Commission</div>
               </div>
               <div>
-                <div className="text-display text-3xl">0€</div>
+                <div className="text-display text-3xl">0 MAD</div>
                 <div className="mt-1 text-[11px] text-muted-foreground uppercase tracking-widest">Abonnement</div>
               </div>
               <div>

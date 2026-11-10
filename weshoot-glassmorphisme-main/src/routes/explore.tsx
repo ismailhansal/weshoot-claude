@@ -32,7 +32,7 @@ function Explore() {
   const [city, setCity] = useState(cities[0]);
   const [category, setCategory] = useState("For You");
   const [role, setRole] = useState<(typeof roles)[number]>("Tous");
-  const [maxPrice, setMaxPrice] = useState(5000);
+  const [maxPrice, setMaxPrice] = useState(10000);
   const [sort, setSort] = useState<"relevance" | "price-asc" | "price-desc" | "rating">("relevance");
 
   const results = useMemo(() => {
@@ -59,7 +59,7 @@ function Explore() {
     setCity(cities[0]);
     setCategory("For You");
     setRole("Tous");
-    setMaxPrice(5000);
+    setMaxPrice(10000);
     setSort("relevance");
   };
 
@@ -79,7 +79,7 @@ function Explore() {
             <input
               value={query}
               onChange={(e) => setQuery(e.target.value)}
-              placeholder="Mariage à Paris, clip, portrait éditorial…"
+              placeholder="Mariage à Marrakech, clip, portrait éditorial…"
               className="bg-transparent outline-none text-sm placeholder:text-muted-foreground flex-1 py-2 min-w-0"
             />
           </div>
@@ -141,13 +141,13 @@ function Explore() {
             <div>
               <div className="flex items-center justify-between text-xs uppercase tracking-widest text-muted-foreground">
                 <span>Budget max</span>
-                <span className="text-foreground">€{maxPrice}</span>
+                <span className="text-foreground">{maxPrice} MAD</span>
               </div>
               <input
                 type="range"
-                min={400}
-                max={5000}
-                step={100}
+                min={1000}
+                max={10000}
+                step={500}
                 value={maxPrice}
                 onChange={(e) => setMaxPrice(Number(e.target.value))}
                 className="mt-3 w-full accent-primary"

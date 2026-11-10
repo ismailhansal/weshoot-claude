@@ -76,7 +76,7 @@ function CreatorProfile() {
             </div>
             <h1 className="text-display text-4xl md:text-6xl mt-2">{c.name}</h1>
             <div className="mt-3 flex flex-wrap items-center gap-4 text-sm text-muted-foreground">
-              <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4" /> {c.city}</span>
+              <span className="flex items-center gap-1.5"><MapPin className="h-4 w-4" /> {c.radiusKm} km autour de {c.city}</span>
               <span className="flex items-center gap-1.5"><Star className="h-4 w-4 fill-primary text-primary" /> {c.rating} <span className="text-muted-foreground">({c.reviews} avis)</span></span>
             </div>
           </div>
@@ -135,7 +135,7 @@ function CreatorProfile() {
                     role="tab"
                     aria-selected={active}
                     onClick={() => setCategory(cat)}
-                    className={`shrink-0 h-10 rounded-full px-5 text-sm font-medium border transition whitespace-nowrap ${
+                    className={`shrink-0 cursor-pointer h-10 rounded-full px-5 text-sm font-medium border transition whitespace-nowrap ${
                       active
                         ? "bg-primary text-primary-foreground border-primary"
                         : "bg-surface border-border text-muted-foreground hover:text-foreground hover:border-foreground/30"
@@ -154,7 +154,7 @@ function CreatorProfile() {
                   type="button"
                   onClick={() => setLightboxIndex(i)}
                   aria-label={`Agrandir la réalisation ${i + 1} de ${c.name}`}
-                  className={`relative overflow-hidden rounded-2xl group cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
+                  className={`relative overflow-hidden rounded-2xl group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
                     i === 0 && visibleItems.length >= 3 ? "col-span-2 row-span-2 aspect-square" : "aspect-[3/4]"
                   }`}
                 >
@@ -208,7 +208,7 @@ function CreatorProfile() {
                     </div>
 
                     <div className="flex items-center justify-between md:justify-end gap-5">
-                      <div className="text-display text-3xl">€{o.price}</div>
+                      <div className="text-display text-3xl">{o.price} <span className="text-sm font-medium text-muted-foreground">MAD</span></div>
                       <span
                         className={`h-11 w-11 shrink-0 rounded-full border grid place-items-center transition ${
                           o.popular
@@ -338,7 +338,8 @@ function CreatorProfile() {
           <div className="lg:sticky lg:top-24 space-y-4">
             <div className="rounded-3xl border border-border bg-surface-elevated p-6 shadow-card">
               <div className="flex items-baseline gap-1">
-                <span className="text-display text-4xl">€{c.price}</span>
+                <span className="text-display text-4xl">{c.price}</span>
+                <span className="text-sm text-muted-foreground">MAD</span>
                 <span className="text-sm text-muted-foreground">/ shoot</span>
               </div>
               <div className="mt-1 text-xs text-muted-foreground">À partir de · {c.offers[0].name}</div>
@@ -353,7 +354,7 @@ function CreatorProfile() {
                     className="flex items-center justify-between p-3 rounded-xl bg-background border border-border hover:border-primary/50 transition"
                   >
                     <span className="text-muted-foreground truncate">{o.name}</span>
-                    <span className="font-medium flex items-center gap-1 shrink-0">€{o.price} <ChevronRight className="h-4 w-4" /></span>
+                    <span className="font-medium flex items-center gap-1 shrink-0">{o.price} MAD <ChevronRight className="h-4 w-4" /></span>
                   </Link>
                 ))}
               </div>
@@ -392,7 +393,7 @@ function CreatorProfile() {
         <div className="mx-auto max-w-7xl flex items-center gap-4">
           <div className="shrink-0 leading-tight">
             <div className="text-xs text-muted-foreground">À partir de</div>
-            <div className="text-display text-2xl">€{c.price}</div>
+            <div className="text-display text-2xl">{c.price} <span className="text-xs font-medium text-muted-foreground">MAD</span></div>
           </div>
           <Link
             to="/book/$id"

@@ -82,7 +82,7 @@ function Slides({
         </div>
         <DialogPrimitive.Close
           aria-label="Fermer"
-          className="h-10 w-10 rounded-xl border border-border bg-surface grid place-items-center hover:bg-surface-elevated transition"
+          className="cursor-pointer h-10 w-10 rounded-xl border border-border bg-surface grid place-items-center hover:bg-surface-elevated transition"
         >
           <X className="h-4 w-4" />
         </DialogPrimitive.Close>
@@ -114,14 +114,14 @@ function Slides({
             <button
               onClick={prev}
               aria-label="Image précédente"
-              className="hidden md:grid absolute left-4 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full glass place-items-center hover:bg-white/15 transition"
+              className="cursor-pointer hidden md:grid absolute left-4 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full glass place-items-center hover:bg-white/15 transition"
             >
               <ChevronLeft className="h-5 w-5" />
             </button>
             <button
               onClick={next}
               aria-label="Image suivante"
-              className="hidden md:grid absolute right-4 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full glass place-items-center hover:bg-white/15 transition"
+              className="cursor-pointer hidden md:grid absolute right-4 top-1/2 -translate-y-1/2 h-11 w-11 rounded-full glass place-items-center hover:bg-white/15 transition"
             >
               <ChevronRight className="h-5 w-5" />
             </button>
@@ -137,7 +137,7 @@ function Slides({
               key={i}
               onClick={() => embla?.scrollTo(i)}
               aria-label={`Aller à l'image ${i + 1}`}
-              className={`h-1.5 rounded-full transition-all ${i === current ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/40"}`}
+              className={`cursor-pointer h-1.5 rounded-full transition-all ${i === current ? "w-6 bg-primary" : "w-1.5 bg-muted-foreground/40"}`}
             />
           ))}
         </div>

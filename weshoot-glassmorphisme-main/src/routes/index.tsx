@@ -69,7 +69,7 @@ function Index() {
                 <input
                   value={query}
                   onChange={(e) => setQuery(e.target.value)}
-                  placeholder="Mariage à Paris, clip, portrait éditorial…"
+                  placeholder="Mariage à Marrakech, clip, portrait éditorial…"
                   className="bg-transparent outline-none text-sm placeholder:text-muted-foreground flex-1 py-2 min-w-0"
                 />
               </div>
@@ -110,11 +110,11 @@ function Index() {
                 <div className="absolute bottom-3 left-3 right-3 glass rounded-2xl p-3 flex items-center gap-3">
                   <img src={avatar1} alt="" loading="lazy" className="h-10 w-10 rounded-lg object-cover" />
                   <div className="min-w-0 flex-1">
-                    <div className="text-sm font-semibold truncate">Sophie Laurent</div>
-                    <div className="text-[11px] text-white/70 truncate">Editorial · Paris</div>
+                    <div className="text-sm font-semibold truncate">Sophie</div>
+                    <div className="text-[11px] text-white/70 truncate">Éditorial · Casablanca</div>
                   </div>
                   <div className="text-right">
-                    <div className="text-sm font-semibold">€480</div>
+                    <div className="text-sm font-semibold">3000 MAD</div>
                     <div className="text-[10px] text-white/60 -mt-0.5">/ day</div>
                   </div>
                 </div>
