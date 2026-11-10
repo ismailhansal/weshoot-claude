@@ -1,0 +1,4 @@
+- [ ] Complete the simulated sign-in and multi-step reservation/quote flow, including validated resume paths and tests.
+- [ ] Enrich provider profiles with service radius, categorized portfolio/lightbox, equipment, offer details, schedule, and limited reviews.
+- [ ] Update provider cards to show starting price, hide handles, and navigate from the full card.
+- [ ] Verify the key routes, interactions, and project build.
