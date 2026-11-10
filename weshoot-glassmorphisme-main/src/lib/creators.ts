@@ -27,6 +27,12 @@ export type Offer = {
   delivery?: string;
 };
 
+export type PortfolioItem = {
+  src: string;
+  /** Catégorie configurée par le créateur (Mariage, Portrait, Food…) */
+  category: string;
+};
+
 export type Review = {
   name: string;
   avatar: string;
@@ -60,7 +66,7 @@ export type Creator = {
   cover: string;
   avatar: string;
   bio: string;
-  portfolio: string[];
+  portfolio: PortfolioItem[];
   offers: Offer[];
   reviewList: Review[];
   /** day numbers of the sample month that are already booked */
@@ -73,7 +79,7 @@ const commonIncludes = ["Direction artistique incluse", "Retouches haute qualit�
 export const creators: Creator[] = [
   {
     id: "1",
-    name: "Sophie Laurent",
+    name: "Sophie",
     handle: "@sophie.l",
     role: "Photographer",
     city: "Paris",
@@ -89,7 +95,14 @@ export const creators: Creator[] = [
     cover: portfolio1,
     avatar: avatar1,
     bio: "Photographe éditoriale basée à Paris, je collabore avec des marques de mode et des magazines depuis plus de six ans. Mon travail explore la lumière naturelle, les portraits intimes et les mises en scène cinématiques.",
-    portfolio: [portfolio1, heroImg1, portfolio4, portfolio2, heroImg2, portfolio3],
+    portfolio: [
+      { src: portfolio1, category: "Éditorial" },
+      { src: heroImg1, category: "Mode" },
+      { src: portfolio4, category: "Portrait" },
+      { src: portfolio2, category: "Mode" },
+      { src: heroImg2, category: "Éditorial" },
+      { src: portfolio3, category: "Portrait" },
+    ],
     offers: [
       { id: "portrait", name: "Portrait éditorial", duration: "2h shoot · 15 photos retouchées", price: 480, includes: commonIncludes },
       { id: "brand", name: "Brand campaign", duration: "Demi-journée · 40 photos · usage 1 an", price: 1200, popular: true, includes: commonIncludes },
@@ -105,7 +118,7 @@ export const creators: Creator[] = [
   },
   {
     id: "2",
-    name: "Marcus Bell",
+    name: "Marcus",
     handle: "@marcus.shoots",
     role: "Videographer",
     city: "Berlin",
@@ -121,7 +134,14 @@ export const creators: Creator[] = [
     cover: portfolio2,
     avatar: avatar2,
     bio: "Réalisateur et chef opérateur à Berlin. Je tourne des clips musicaux et des films de marque à l'esthétique brute, contrastée, tournés en anamorphique.",
-    portfolio: [portfolio2, heroImg2, portfolio5, portfolio1, heroImg3, portfolio6],
+    portfolio: [
+      { src: portfolio2, category: "Clip" },
+      { src: heroImg2, category: "Brand" },
+      { src: portfolio5, category: "Documentaire" },
+      { src: portfolio1, category: "Clip" },
+      { src: heroImg3, category: "Brand" },
+      { src: portfolio6, category: "Documentaire" },
+    ],
     offers: [
       { id: "teaser", name: "Teaser vertical", duration: "Demi-journée · 2 formats", price: 920, includes: ["Repérage inclus", "Étalonnage cinéma", "Livraison 5 jours"] },
       { id: "clip", name: "Clip musical", duration: "1 jour tournage · 1 jour montage", price: 2600, popular: true, includes: ["Équipe 3 personnes", "Étalonnage cinéma", "2 rounds de retours"] },
@@ -136,7 +156,7 @@ export const creators: Creator[] = [
   },
   {
     id: "3",
-    name: "Camille Roux",
+    name: "Camille",
     handle: "@camille.studio",
     role: "Photographer",
     city: "Lyon",
@@ -152,7 +172,14 @@ export const creators: Creator[] = [
     cover: portfolio3,
     avatar: avatar3,
     bio: "Spécialisée mariage et couples, je photographie en lumière naturelle avec une approche documentaire, discrète et sensible.",
-    portfolio: [portfolio3, portfolio6, heroImg3, portfolio1, portfolio5, heroImg1],
+    portfolio: [
+      { src: portfolio3, category: "Mariage" },
+      { src: portfolio6, category: "Couple" },
+      { src: heroImg3, category: "Mariage" },
+      { src: portfolio1, category: "Portrait" },
+      { src: portfolio5, category: "Couple" },
+      { src: heroImg1, category: "Mariage" },
+    ],
     offers: [
       { id: "engagement", name: "Séance couple", duration: "1h30 · 30 photos", price: 650, includes: commonIncludes },
       { id: "wedding", name: "Mariage journée", duration: "10h · 400+ photos · galerie privée", price: 2800, popular: true, includes: ["Repérage du lieu", "Galerie en ligne", "Album 30x30 offert"] },
@@ -167,7 +194,7 @@ export const creators: Creator[] = [
   },
   {
     id: "4",
-    name: "Kenji Asano",
+    name: "Kenji",
     handle: "@kenji.frames",
     role: "Photo & Video",
     city: "Tokyo",
@@ -183,7 +210,14 @@ export const creators: Creator[] = [
     cover: portfolio4,
     avatar: avatar4,
     bio: "Photographe et vidéaste à Tokyo. Je travaille les néons, la nuit urbaine et la mode de rue, en photo comme en vidéo.",
-    portfolio: [portfolio4, heroImg2, portfolio2, portfolio5, heroImg1, portfolio3],
+    portfolio: [
+      { src: portfolio4, category: "Street" },
+      { src: heroImg2, category: "Mode" },
+      { src: portfolio2, category: "Nuit" },
+      { src: portfolio5, category: "Street" },
+      { src: heroImg1, category: "Mode" },
+      { src: portfolio3, category: "Nuit" },
+    ],
     offers: [
       { id: "street", name: "Street session", duration: "2h · 25 photos", price: 780, includes: commonIncludes },
       { id: "hybrid", name: "Pack photo + vidéo", duration: "Demi-journée · 30 photos + reel", price: 1600, popular: true, includes: ["Photo & vidéo", "Reel vertical 30s", "Étalonnage"] },
@@ -198,7 +232,7 @@ export const creators: Creator[] = [
   },
   {
     id: "5",
-    name: "Elena Vargas",
+    name: "Elena",
     handle: "@elena.vargas",
     role: "Videographer",
     city: "Madrid",
@@ -214,7 +248,14 @@ export const creators: Creator[] = [
     cover: portfolio5,
     avatar: avatar5,
     bio: "Documentariste basée à Madrid. Je raconte des histoires humaines, du repérage au montage final, avec une équipe légère.",
-    portfolio: [portfolio5, heroImg3, portfolio2, portfolio6, heroImg2, portfolio1],
+    portfolio: [
+      { src: portfolio5, category: "Documentaire" },
+      { src: heroImg3, category: "Interview" },
+      { src: portfolio2, category: "Documentaire" },
+      { src: portfolio6, category: "Brand" },
+      { src: heroImg2, category: "Interview" },
+      { src: portfolio1, category: "Brand" },
+    ],
     offers: [
       { id: "interview", name: "Interview filmée", duration: "3h · 1 caméra · sous-titres", price: 1100, includes: ["Son pro", "Sous-titres", "Livraison 5 jours"] },
       { id: "doc", name: "Mini-documentaire", duration: "2 jours · 5-8 min", price: 3400, popular: true, includes: ["Recherche & écriture", "Musique licenciée", "Sound design"] },
@@ -229,7 +270,7 @@ export const creators: Creator[] = [
   },
   {
     id: "6",
-    name: "Daniel Holt",
+    name: "Daniel",
     handle: "@daniel.holt",
     role: "Photographer",
     city: "London",
@@ -245,7 +286,14 @@ export const creators: Creator[] = [
     cover: portfolio6,
     avatar: avatar6,
     bio: "Photographe produit et studio à Londres. Lumière millimétrée, packshots e-commerce et natures mortes pour marques premium.",
-    portfolio: [portfolio6, portfolio1, heroImg1, portfolio4, portfolio3, heroImg3],
+    portfolio: [
+      { src: portfolio6, category: "Produit" },
+      { src: portfolio1, category: "Food" },
+      { src: heroImg1, category: "Produit" },
+      { src: portfolio4, category: "Food" },
+      { src: portfolio3, category: "Studio" },
+      { src: heroImg3, category: "Studio" },
+    ],
     offers: [
       { id: "packshot", name: "Packshots e-commerce", duration: "10 produits · fond blanc", price: 540, includes: ["Détourage inclus", "Formats web + print", "Livraison 3 jours"] },
       { id: "still", name: "Nature morte créative", duration: "Demi-journée · 12 visuels", price: 1300, popular: true, includes: ["Set design", "Retouche avancée", "Usage 1 an"] },
@@ -266,6 +314,11 @@ export const cities = ["Toutes les villes", ...Array.from(new Set(creators.map((
 
 export function getCreator(id: string): Creator | undefined {
   return creators.find((c) => c.id === id);
+}
+
+/** Catégories du portfolio dans l'ordre de configuration du créateur (sans doublon). */
+export function getPortfolioCategories(c: Creator): string[] {
+  return Array.from(new Set(c.portfolio.map((p) => p.category)));
 }
 
 export const timeSlots = ["09:00", "11:00", "14:00", "16:00", "18:00"];
