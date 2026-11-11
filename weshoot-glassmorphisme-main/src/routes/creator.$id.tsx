@@ -8,7 +8,7 @@ import { useMemo, useState } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { PortfolioLightbox } from "@/components/PortfolioLightbox";
-import { getCreator, getPortfolioCategories, monthLabel, monthDays, dayLabels } from "@/lib/creators";
+import { getCreator, getPortfolioCategories, type Creator, monthLabel, monthDays, dayLabels } from "@/lib/creators";
 import { useSaved } from "@/lib/store";
 
 export const Route = createFileRoute("/creator/$id")({
@@ -33,7 +33,7 @@ export const Route = createFileRoute("/creator/$id")({
 });
 
 function CreatorProfile() {
-  const { creator: c } = Route.useLoaderData();
+  const { creator: c }: { creator: Creator } = Route.useLoaderData();
   const { isSaved, toggleSaved } = useSaved();
   const saved = isSaved(c.id);
   const [category, setCategory] = useState<string>("Tout");

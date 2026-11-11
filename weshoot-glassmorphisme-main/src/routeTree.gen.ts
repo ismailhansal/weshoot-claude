@@ -10,11 +10,16 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as BecomeCreatorRouteImport } from './routes/become-creator'
 import { Route as BookingsRouteImport } from './routes/bookings'
+import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as ForCreatorsRouteImport } from './routes/for-creators'
 import { Route as HowItWorksRouteImport } from './routes/how-it-works'
+import { Route as LoginRouteImport } from './routes/login'
+import { Route as MessagesRouteImport } from './routes/messages'
 import { Route as SavedRouteImport } from './routes/saved'
+import { Route as SignupRouteImport } from './routes/signup'
 import { Route as BookIdRouteImport } from './routes/book.$id'
 import { Route as CreatorIdRouteImport } from './routes/creator.$id'
 
@@ -23,9 +28,19 @@ const IndexRoute = IndexRouteImport.update({
   path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const BecomeCreatorRoute = BecomeCreatorRouteImport.update({
+  id: '/become-creator',
+  path: '/become-creator',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const BookingsRoute = BookingsRouteImport.update({
   id: '/bookings',
   path: '/bookings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const DashboardRoute = DashboardRouteImport.update({
+  id: '/dashboard',
+  path: '/dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ExploreRoute = ExploreRouteImport.update({
@@ -43,9 +58,24 @@ const HowItWorksRoute = HowItWorksRouteImport.update({
   path: '/how-it-works',
   getParentRoute: () => rootRouteImport,
 } as any)
+const LoginRoute = LoginRouteImport.update({
+  id: '/login',
+  path: '/login',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const MessagesRoute = MessagesRouteImport.update({
+  id: '/messages',
+  path: '/messages',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const SavedRoute = SavedRouteImport.update({
   id: '/saved',
   path: '/saved',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SignupRoute = SignupRouteImport.update({
+  id: '/signup',
+  path: '/signup',
   getParentRoute: () => rootRouteImport,
 } as any)
 const BookIdRoute = BookIdRouteImport.update({
@@ -61,32 +91,47 @@ const CreatorIdRoute = CreatorIdRouteImport.update({
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
+  '/become-creator': typeof BecomeCreatorRoute
   '/bookings': typeof BookingsRoute
+  '/dashboard': typeof DashboardRoute
   '/explore': typeof ExploreRoute
   '/for-creators': typeof ForCreatorsRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/login': typeof LoginRoute
+  '/messages': typeof MessagesRoute
   '/saved': typeof SavedRoute
+  '/signup': typeof SignupRoute
   '/book/$id': typeof BookIdRoute
   '/creator/$id': typeof CreatorIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
+  '/become-creator': typeof BecomeCreatorRoute
   '/bookings': typeof BookingsRoute
+  '/dashboard': typeof DashboardRoute
   '/explore': typeof ExploreRoute
   '/for-creators': typeof ForCreatorsRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/login': typeof LoginRoute
+  '/messages': typeof MessagesRoute
   '/saved': typeof SavedRoute
+  '/signup': typeof SignupRoute
   '/book/$id': typeof BookIdRoute
   '/creator/$id': typeof CreatorIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
+  '/become-creator': typeof BecomeCreatorRoute
   '/bookings': typeof BookingsRoute
+  '/dashboard': typeof DashboardRoute
   '/explore': typeof ExploreRoute
   '/for-creators': typeof ForCreatorsRoute
   '/how-it-works': typeof HowItWorksRoute
+  '/login': typeof LoginRoute
+  '/messages': typeof MessagesRoute
   '/saved': typeof SavedRoute
+  '/signup': typeof SignupRoute
   '/book/$id': typeof BookIdRoute
   '/creator/$id': typeof CreatorIdRoute
 }
@@ -94,42 +139,62 @@ export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
+    | '/become-creator'
     | '/bookings'
+    | '/dashboard'
     | '/explore'
     | '/for-creators'
     | '/how-it-works'
+    | '/login'
+    | '/messages'
     | '/saved'
+    | '/signup'
     | '/book/$id'
     | '/creator/$id'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
+    | '/become-creator'
     | '/bookings'
+    | '/dashboard'
     | '/explore'
     | '/for-creators'
     | '/how-it-works'
+    | '/login'
+    | '/messages'
     | '/saved'
+    | '/signup'
     | '/book/$id'
     | '/creator/$id'
   id:
     | '__root__'
     | '/'
+    | '/become-creator'
     | '/bookings'
+    | '/dashboard'
     | '/explore'
     | '/for-creators'
     | '/how-it-works'
+    | '/login'
+    | '/messages'
     | '/saved'
+    | '/signup'
     | '/book/$id'
     | '/creator/$id'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
+  BecomeCreatorRoute: typeof BecomeCreatorRoute
   BookingsRoute: typeof BookingsRoute
+  DashboardRoute: typeof DashboardRoute
   ExploreRoute: typeof ExploreRoute
   ForCreatorsRoute: typeof ForCreatorsRoute
   HowItWorksRoute: typeof HowItWorksRoute
+  LoginRoute: typeof LoginRoute
+  MessagesRoute: typeof MessagesRoute
   SavedRoute: typeof SavedRoute
+  SignupRoute: typeof SignupRoute
   BookIdRoute: typeof BookIdRoute
   CreatorIdRoute: typeof CreatorIdRoute
 }
@@ -143,11 +208,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/become-creator': {
+      id: '/become-creator'
+      path: '/become-creator'
+      fullPath: '/become-creator'
+      preLoaderRoute: typeof BecomeCreatorRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/bookings': {
       id: '/bookings'
       path: '/bookings'
       fullPath: '/bookings'
       preLoaderRoute: typeof BookingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/dashboard': {
+      id: '/dashboard'
+      path: '/dashboard'
+      fullPath: '/dashboard'
+      preLoaderRoute: typeof DashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/explore': {
@@ -171,11 +250,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof HowItWorksRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/login': {
+      id: '/login'
+      path: '/login'
+      fullPath: '/login'
+      preLoaderRoute: typeof LoginRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/messages': {
+      id: '/messages'
+      path: '/messages'
+      fullPath: '/messages'
+      preLoaderRoute: typeof MessagesRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/saved': {
       id: '/saved'
       path: '/saved'
       fullPath: '/saved'
       preLoaderRoute: typeof SavedRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/signup': {
+      id: '/signup'
+      path: '/signup'
+      fullPath: '/signup'
+      preLoaderRoute: typeof SignupRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/book/$id': {
@@ -197,11 +297,16 @@ declare module '@tanstack/react-router' {
 
 const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
+  BecomeCreatorRoute: BecomeCreatorRoute,
   BookingsRoute: BookingsRoute,
+  DashboardRoute: DashboardRoute,
   ExploreRoute: ExploreRoute,
   ForCreatorsRoute: ForCreatorsRoute,
   HowItWorksRoute: HowItWorksRoute,
+  LoginRoute: LoginRoute,
+  MessagesRoute: MessagesRoute,
   SavedRoute: SavedRoute,
+  SignupRoute: SignupRoute,
   BookIdRoute: BookIdRoute,
   CreatorIdRoute: CreatorIdRoute,
 }

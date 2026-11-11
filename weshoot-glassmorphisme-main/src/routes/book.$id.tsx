@@ -1,14 +1,15 @@
-import { createFileRoute, Link } from "@tanstack/react-router";
+import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
 import { ArrowLeft, ArrowRight, Camera, Check, Clock3, MapPin, Send, Star, Video } from "lucide-react";
 import { format as formatDate } from "date-fns";
 import { fr } from "date-fns/locale";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { Calendar } from "@/components/ui/calendar";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { creators, getCreator } from "@/lib/creators";
 import { getBookingSteps, isDateBeforeToday, isProjectDescriptionValid, PROJECT_DESCRIPTION_MAX, getFirstName } from "@/lib/booking-rules";
+import { useDemoSession } from "@/lib/demo-auth";
 import { newRef, useBookings } from "@/lib/store";
 
 export const Route = createFileRoute("/book/$id")({
@@ -88,6 +89,8 @@ function BookingFlow() {
   const { offer: offerParam } = Route.useSearch();
   const creator = getCreator(id);
   const { addBooking } = useBookings();
+  const navigate = useNavigate();
+  const session = useDemoSession();
   const initialOffer = creator?.offers.find((item) => item.id === offerParam);
   const [mode, setMode] = useState<Mode | null>(initialOffer ? "offer" : null);
   const [offerId, setOfferId] = useState(initialOffer?.id ?? "");
@@ -108,6 +111,28 @@ function BookingFlow() {
   const [videoCount, setVideoCount] = useState("1");
   const [videoSpecs, setVideoSpecs] = useState<VideoSpec[]>([newVideoSpec()]);
   const [reference, setReference] = useState("");
+
+  // La réservation nécessite une connexion : on envoie vers /login puis on reprend ici.
+  useEffect(() => {
+    if (session.ready && !session.isAuthenticated) {
+      navigate({
+        to: "/login",
+        search: { redirect: `/book/${id}${offerParam ? `?offer=${offerParam}` : ""}` },
+        replace: true,
+      });
+    }
+  }, [session.ready, session.isAuthenticated, id, offerParam, navigate]);
+
+  if (!session.ready || !session.isAuthenticated) {
+    return (
+      <div className="min-h-screen bg-background text-foreground">
+        <SiteHeader />
+        <main className="mx-auto max-w-md px-6 py-32 text-center">
+          <p className="text-muted-foreground">Redirection vers la connexion…</p>
+        </main>
+      </div>
+    );
+  }
 
   if (!creator) {
     return (
