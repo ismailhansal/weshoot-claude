@@ -15,6 +15,7 @@ import avatar3 from "@/assets/avatar-3.jpg";
 import avatar4 from "@/assets/avatar-4.jpg";
 import avatar5 from "@/assets/avatar-5.jpg";
 import avatar6 from "@/assets/avatar-6.jpg";
+import { useClientSpace } from "@/lib/client-space";
 import { endDemoSession, getDisplayName, useDemoSession } from "@/lib/demo-auth";
 import { useSaved, useBookings } from "@/lib/store";
 
@@ -47,6 +48,7 @@ export function SiteHeader() {
   const { bookings } = useBookings();
   const [open, setOpen] = useState(false);
   const session = useDemoSession();
+  const space = useClientSpace();
   const firstName = getDisplayName(session.email, session.name);
   const avatarSrc = session.avatar ?? defaultAvatarFor(session.email);
   const activeBookings = bookings.filter((b) => b.status === "confirmed").length;
@@ -121,7 +123,7 @@ export function SiteHeader() {
                 >
                   <UserAvatar src={avatarSrc} />
                   {firstName}
-                  {activeBookings > 0 && <span aria-hidden className="h-2 w-2 rounded-full bg-primary" />}
+                  {(space.unreadCount > 0 || space.actionCount > 0) && <span aria-hidden className="h-2 w-2 rounded-full bg-primary" />}
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -138,12 +140,22 @@ export function SiteHeader() {
                   <Link to="/dashboard" className="flex items-center gap-2.5">
                     <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
                     <span className="flex-1">Dashboard</span>
+                    {space.actionCount > 0 && (
+                      <span className="grid h-5 min-w-5 place-items-center rounded-md bg-primary px-1.5 text-[11px] font-bold text-primary-foreground">
+                        {space.actionCount}
+                      </span>
+                    )}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild className={menuItemClass}>
                   <Link to="/messages" className="flex items-center gap-2.5">
                     <MessageSquare className="h-4 w-4 text-muted-foreground" />
                     <span className="flex-1">Messages</span>
+                    {space.unreadCount > 0 && (
+                      <span className="grid h-5 min-w-5 place-items-center rounded-md bg-primary px-1.5 text-[11px] font-bold text-primary-foreground">
+                        {space.unreadCount}
+                      </span>
+                    )}
                   </Link>
                 </DropdownMenuItem>
                 <DropdownMenuItem asChild className={menuItemClass}>
