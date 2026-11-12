@@ -203,3 +203,14 @@
   border: 1px solid oklch(1 0 0 / 0.12);
   box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.1), var(--shadow-card);
 }
+
+/* Mobile : iOS zoome sur tout champ dont la police est < 16 px et reste zoomé ensuite.
+   Règle volontairement hors @layer pour passer devant les classes text-sm / text-xs. */
+html { -webkit-text-size-adjust: 100%; text-size-adjust: 100%; }
+@media (hover: none) and (pointer: coarse) {
+  input:not([type="checkbox"]):not([type="radio"]):not([type="range"]):not([type="file"]),
+  select,
+  textarea {
+    font-size: 16px;
+  }
+}

@@ -1,10 +1,11 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { ArrowLeft, ArrowRight, Camera, Check, Clock3, MapPin, Send, Star, Video } from "lucide-react";
+import { ArrowLeft, ArrowRight, Camera, CalendarDays, Check, ChevronDown, Clock3, MapPin, Send, Star, Video } from "lucide-react";
 import { format as formatDate } from "date-fns";
 import { fr } from "date-fns/locale";
 import { useEffect, useState } from "react";
 
 import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { creators, getCreator } from "@/lib/creators";
@@ -31,7 +32,7 @@ export const Route = createFileRoute("/book/$id")({
 
 type Mode = "offer" | "project";
 type ServiceType = "Photo" | "Vidéo" | "Photo & vidéo";
-type DateChoice = "fixed" | "flexible";
+type DateChoice = "fixed" | "flexible" | "unknown";
 
 const projectCategories = [
   "Mariage", "Fiançailles / couple", "Portrait", "Famille", "Grossesse", "Naissance", "Enfants",
@@ -97,6 +98,7 @@ function BookingFlow() {
   const [stepIndex, setStepIndex] = useState(0);
   const [serviceType, setServiceType] = useState<ServiceType | "">("");
   const [dateChoice, setDateChoice] = useState<DateChoice>("fixed");
+  const [calendarOpen, setCalendarOpen] = useState(false);
   const [date, setDate] = useState("");
   const [time, setTime] = useState("");
   const [flexibleDate, setFlexibleDate] = useState("");
@@ -159,7 +161,7 @@ function BookingFlow() {
   const showPhotoFields = isProject && (activeService === "Photo" || activeService === "Photo & vidéo");
   const budgetValue = Number(budget);
   const choiceIsValid = mode === "offer" ? !!selectedOffer : mode === "project" ? isProjectDescriptionValid(description) : false;
-  const dateIsValid = dateChoice === "fixed" ? date !== "" && !isDateBeforeToday(date, localToday()) && time !== "" : flexibleDate.trim() !== "";
+  const dateIsValid = dateChoice === "unknown" ? true : dateChoice === "fixed" ? date !== "" && !isDateBeforeToday(date, localToday()) && time !== "" : flexibleDate.trim() !== "";
   const videosValid = !showVideoFields || (Number(videoCount) >= 1 && videoSpecs.length === Number(videoCount));
   const photosValid = !showPhotoFields || Number(photoCount) >= 1;
   const briefIsValid = category !== "" && duration !== "" && photosValid && videosValid;
@@ -170,7 +172,7 @@ function BookingFlow() {
     (step === "brief" && briefIsValid);
 
   const amount = selectedOffer ? `${selectedOffer.price} MAD` : budgetValue > 0 ? `Jusqu'à ${budgetValue} MAD` : "Sur devis";
-  const dateLabel = dateChoice === "fixed" ? (date ? prettyDate(date, time) : "") : flexibleDate;
+  const dateLabel = dateChoice === "unknown" ? "À définir avec le prestataire" : dateChoice === "fixed" ? (date ? prettyDate(date, time) : "") : flexibleDate;
 
   const changeVideoCount = (value: string) => {
     setVideoCount(value);
@@ -196,8 +198,8 @@ function BookingFlow() {
     const brief = mode === "project"
       ? [
           `Projet : ${description}`,
-          `Catégorie : ${category}`,
-          `Prestation : ${activeService}`,
+          `Type de prestation : ${category}`,
+          `Photo / vidéo : ${activeService}`,
           `Durée : ${duration}`,
           showPhotoFields ? `Photos : ${photoCount}` : "",
           showVideoFields ? `Vidéos : ${videoSpecs.length}\n${videoSummary.join("\n")}` : "",
@@ -215,7 +217,7 @@ function BookingFlow() {
       price: selectedOffer?.price ?? Math.max(0, budgetValue || 0),
       day: dateChoice === "fixed" && date ? Number(date.slice(-2)) : 0,
       date: dateChoice === "fixed" ? date : undefined,
-      flexibleDate: dateChoice === "flexible" ? flexibleDate : undefined,
+      flexibleDate: dateChoice === "flexible" ? flexibleDate : dateChoice === "unknown" ? "À définir avec le prestataire" : undefined,
       time: dateChoice === "fixed" ? time : "",
       city,
       location,
@@ -278,7 +280,7 @@ function BookingFlow() {
 
   const recap = [
     { k: "Demande", v: selectedOffer ? selectedOffer.name : isProject ? "Devis libre" : "" },
-    { k: "Prestation", v: mode ? (selectedOffer?.serviceType ?? activeService) : "" },
+    { k: "Photo / vidéo", v: mode ? (selectedOffer?.serviceType ?? activeService) : "" },
     { k: "Date", v: dateLabel },
     { k: "Ville", v: city },
     { k: "Montant", v: mode ? amount : "" },
@@ -462,56 +464,82 @@ function BookingFlow() {
                 )}
 
                 {step === "date" && (
-                  <div className="space-y-6">
+                  <div className="space-y-5 sm:space-y-6">
                     <div>
                       <label htmlFor="project-city" className={labelClass}>Ville</label>
-                      <input id="project-city" list="booking-cities" value={city} onChange={(event) => setCity(event.target.value)} placeholder="Ex. Casablanca" className={fieldClass} />
-                      <datalist id="booking-cities">{cities.map((item) => <option key={item} value={item} />)}</datalist>
+                      <div className="relative">
+                        <select id="project-city" value={city} onChange={(event) => setCity(event.target.value)} className={`${fieldClass} appearance-none pr-10 ${city ? "" : "text-muted-foreground/60"}`}>
+                          <option value="">Choisir une ville…</option>
+                          {cities.map((item) => <option key={item} value={item}>{item}</option>)}
+                        </select>
+                        <ChevronDown aria-hidden className="pointer-events-none absolute right-4 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
+                      </div>
                     </div>
 
                     <div>
-                      <span className={labelClass}>Type de date</span>
-                      <div className="inline-flex rounded-xl border border-white/10 bg-white/[0.04] p-1">
-                        {([["fixed", "Date fixe"], ["flexible", "Date flexible"]] as const).map(([choice, label]) => (
-                          <button key={choice} type="button" aria-pressed={dateChoice === choice} onClick={() => setDateChoice(choice)} className={`h-10 rounded-lg px-5 text-sm font-medium transition ${dateChoice === choice ? "bg-primary text-primary-foreground shadow-glow" : "text-muted-foreground hover:text-foreground"}`}>
+                      <span className={labelClass}>Date</span>
+                      <div className="grid grid-cols-3 gap-1 rounded-xl border border-white/10 bg-white/[0.04] p-1">
+                        {([["fixed", "Date fixe"], ["flexible", "Flexible"], ["unknown", "Je ne sais pas"]] as const).map(([choice, label]) => (
+                          <button key={choice} type="button" aria-pressed={dateChoice === choice} onClick={() => setDateChoice(choice)} className={`h-10 min-w-0 truncate rounded-lg px-1.5 text-xs font-medium transition sm:px-3 sm:text-sm ${dateChoice === choice ? "bg-primary text-primary-foreground shadow-glow" : "text-muted-foreground hover:text-foreground"}`}>
                             {label}
                           </button>
                         ))}
                       </div>
                     </div>
 
-                    {dateChoice === "fixed" ? (
-                      <div className="grid gap-6 md:grid-cols-[auto_1fr]">
-                        <div>
-                          <span className={labelClass}>Date</span>
-                          <div className="w-fit rounded-2xl border border-white/10 bg-white/[0.04] backdrop-blur">
-                            <Calendar
-                              mode="single"
-                              locale={fr}
-                              selected={date ? parseDay(date) : undefined}
-                              onSelect={(day) => setDate(day ? formatDate(day, "yyyy-MM-dd") : "")}
-                              disabled={{ before: parseDay(localToday()) }}
-                              defaultMonth={date ? parseDay(date) : undefined}
-                              className="bg-transparent"
-                              classNames={{ today: "rounded-md ring-1 ring-primary/60" }}
-                            />
+                    {dateChoice === "fixed" && (
+                      <div>
+                        <div className="grid grid-cols-[minmax(0,1fr)_7.5rem] gap-3 sm:grid-cols-[minmax(0,1fr)_10rem]">
+                          <div className="min-w-0">
+                            <span className={labelClass}>Jour</span>
+                            <Popover open={calendarOpen} onOpenChange={setCalendarOpen}>
+                              <PopoverTrigger asChild>
+                                <button type="button" id="project-date" className={`${fieldClass} flex items-center justify-between gap-2 text-left ${date ? "" : "text-muted-foreground/60"}`}>
+                                  <span className="truncate">{date ? parseDay(date).toLocaleDateString("fr-FR", { day: "numeric", month: "short", year: "numeric" }) : "Choisir"}</span>
+                                  <CalendarDays aria-hidden className="h-4 w-4 shrink-0 text-primary" />
+                                </button>
+                              </PopoverTrigger>
+                              <PopoverContent align="start" collisionPadding={12} className="glass-strong w-auto max-w-[calc(100vw-1.5rem)] rounded-2xl border-white/10 p-0">
+                                <Calendar
+                                  mode="single"
+                                  locale={fr}
+                                  selected={date ? parseDay(date) : undefined}
+                                  onSelect={(day) => {
+                                    setDate(day ? formatDate(day, "yyyy-MM-dd") : "");
+                                    if (day) setCalendarOpen(false);
+                                  }}
+                                  disabled={{ before: parseDay(localToday()) }}
+                                  defaultMonth={date ? parseDay(date) : undefined}
+                                  className="bg-transparent"
+                                  classNames={{ today: "rounded-md ring-1 ring-primary/60" }}
+                                />
+                              </PopoverContent>
+                            </Popover>
+                          </div>
+                          <div className="min-w-0">
+                            <label htmlFor="project-time" className={labelClass}>Heure</label>
+                            <input id="project-time" type="time" value={time} onChange={(event) => setTime(event.target.value)} className={`${fieldClass} block min-w-0 max-w-full appearance-none px-3 sm:px-4`} />
                           </div>
                         </div>
-                        <div>
-                          <label htmlFor="project-time" className={labelClass}>Heure</label>
-                          <input id="project-time" type="time" value={time} onChange={(event) => setTime(event.target.value)} className={fieldClass} />
-                          <div className="mt-3 flex flex-wrap gap-2">
-                            {quickTimes.map((slot) => (
-                              <button key={slot} type="button" onClick={() => setTime(slot)} className={`h-9 rounded-lg border px-3 text-xs font-medium transition ${time === slot ? "border-primary/70 bg-primary/15 text-primary" : "border-white/10 bg-white/[0.04] text-muted-foreground hover:border-white/25 hover:text-foreground"}`}>{slot}</button>
-                            ))}
-                          </div>
+                        <div className="mt-3 flex flex-wrap gap-2">
+                          {quickTimes.map((slot) => (
+                            <button key={slot} type="button" onClick={() => setTime(slot)} className={`h-9 rounded-lg border px-3 text-xs font-medium transition ${time === slot ? "border-primary/70 bg-primary/15 text-primary" : "border-white/10 bg-white/[0.04] text-muted-foreground hover:border-white/25 hover:text-foreground"}`}>{slot}</button>
+                          ))}
                         </div>
                       </div>
-                    ) : (
+                    )}
+
+                    {dateChoice === "flexible" && (
                       <div>
                         <label htmlFor="flexible-period" className={labelClass}>Période souhaitée</label>
                         <input id="flexible-period" value={flexibleDate} onChange={(event) => setFlexibleDate(event.target.value)} placeholder="Ex. entre le 10 et le 20 décembre" className={fieldClass} />
                       </div>
+                    )}
+
+                    {dateChoice === "unknown" && (
+                      <p className="rounded-xl border border-white/10 bg-white/[0.04] px-4 py-3 text-sm text-muted-foreground">
+                        Pas de souci : tu fixeras la date avec {firstName} une fois ta demande acceptée.
+                      </p>
                     )}
 
                     <div>
@@ -524,9 +552,9 @@ function BookingFlow() {
                 {step === "brief" && (
                   <div className="space-y-6">
                     <div>
-                      <label htmlFor="brief-category" className={labelClass}>Catégorie</label>
+                      <label htmlFor="brief-category" className={labelClass}>Type de prestation</label>
                       <select id="brief-category" value={category} onChange={(event) => setCategory(event.target.value)} className={fieldClass}>
-                        <option value="">—</option>
+                        <option value="">Choisir…</option>
                         {projectCategories.map((item) => <option key={item}>{item}</option>)}
                       </select>
                     </div>
@@ -594,14 +622,14 @@ function BookingFlow() {
                   <div>
                     <dl className="text-sm">
                       <SummaryRow label="Prestataire" value={`${creator.name} · ${creator.city}`} />
-                      <SummaryRow label="Type de prestation" value={selectedOffer?.serviceType ?? activeService} />
+                      <SummaryRow label="Photo / vidéo" value={selectedOffer?.serviceType ?? activeService} />
                       <SummaryRow label="Demande" value={selectedOffer ? `Offre · ${selectedOffer.name}` : "Devis libre"} />
                       <SummaryRow label="Date" value={dateLabel} />
                       <SummaryRow label="Ville" value={city} />
                       {location && <SummaryRow label="Lieu" value={location} />}
                       {selectedOffer && <SummaryRow label="Livrables" value={selectedOffer.includes.join(" · ")} />}
                       {isProject && <SummaryRow label="Projet" value={description} />}
-                      {isProject && <SummaryRow label="Catégorie" value={category} />}
+                      {isProject && <SummaryRow label="Type de prestation" value={category} />}
                       {isProject && <SummaryRow label="Durée" value={duration} />}
                       {showPhotoFields && <SummaryRow label="Photos" value={`${photoCount} photos`} />}
                       {showVideoFields && <SummaryRow label="Vidéos" value={videoSummary.map((line) => line.replace(" : ", " · ")).join("\n")} />}
