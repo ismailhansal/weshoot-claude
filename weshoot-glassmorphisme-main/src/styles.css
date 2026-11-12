@@ -55,24 +55,24 @@
   --popover: oklch(0.10 0 0);
   --popover-foreground: oklch(0.98 0 0);
 
-  /* Dark burnt orange signature */
-  --primary: oklch(0.668 0.224 37);
+  /* Orange signature WeShoot */
+  --primary: #ff5d12;
   --primary-foreground: oklch(0.10 0 0);
 
   --secondary: oklch(0.16 0 0);
   --secondary-foreground: oklch(0.98 0 0);
   --muted: oklch(0.14 0 0);
   --muted-foreground: oklch(0.65 0 0);
-  --accent: oklch(0.668 0.224 37);
+  --accent: #ff5d12;
   --accent-foreground: oklch(0.10 0 0);
   --destructive: oklch(0.65 0.22 25);
   --destructive-foreground: oklch(0.98 0 0);
   --border: oklch(1 0 0 / 8%);
   --input: oklch(1 0 0 / 12%);
-  --ring: oklch(0.668 0.224 37);
+  --ring: #ff5d12;
 
   --gradient-accent: linear-gradient(135deg, oklch(0.70 0.19 50), oklch(0.55 0.20 30));
-  --shadow-glow: 0 20px 60px -20px oklch(0.668 0.224 37 / 0.45);
+  --shadow-glow: 0 20px 60px -20px rgb(255 93 18 / 0.45);
   --shadow-card: 0 10px 30px -10px oklch(0 0 0 / 0.8);
 }
 
