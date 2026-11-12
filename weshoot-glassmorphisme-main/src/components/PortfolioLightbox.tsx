@@ -73,7 +73,7 @@ function Slides({
       {/* Top bar */}
       <div className="flex items-center justify-between gap-3 px-4 md:px-6 h-16 shrink-0">
         <div className="min-w-0 flex items-center gap-3">
-          <span className="rounded-full bg-primary text-primary-foreground text-xs font-semibold px-3 py-1 truncate">
+          <span className="rounded-full bg-white text-black px-4 py-1.5 text-xs font-semibold">
             {item?.category}
           </span>
           <span className="text-xs text-muted-foreground tabular-nums">

@@ -137,7 +137,7 @@ function CreatorProfile() {
                     onClick={() => setCategory(cat)}
                     className={`shrink-0 cursor-pointer h-10 rounded-full px-5 text-sm font-medium border transition whitespace-nowrap ${
                       active
-                        ? "bg-primary text-primary-foreground border-primary"
+                        ? "bg-white text-black border-white"
                         : "bg-surface border-border text-muted-foreground hover:text-foreground hover:border-foreground/30"
                     }`}
                   >
@@ -147,7 +147,7 @@ function CreatorProfile() {
               })}
             </div>
 
-            <div key={category} className="mt-5 grid grid-cols-2 md:grid-cols-3 gap-3 animate-in fade-in duration-300">
+        <div key={category} className="mt-5 grid grid-cols-2 md:grid-cols-3 gap-3 animate-in fade-in duration-300">
               {visibleItems.map((item, i) => (
                 <button
                   key={`${item.src}-${i}`}
@@ -155,7 +155,9 @@ function CreatorProfile() {
                   onClick={() => setLightboxIndex(i)}
                   aria-label={`Agrandir la réalisation ${i + 1} de ${c.name}`}
                   className={`relative overflow-hidden rounded-2xl group cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${
-                    i === 0 && visibleItems.length >= 3 ? "col-span-2 row-span-2 aspect-square" : "aspect-[3/4]"
+                    i === 0 && visibleItems.length >= 3
+                      ? "aspect-[3/4] md:col-span-2 md:row-span-2 md:aspect-square"
+                      : "aspect-[3/4]"
                   }`}
                 >
                   <img
@@ -334,53 +336,52 @@ function CreatorProfile() {
         </div>
 
         {/* Right sticky booking card */}
+       {/* Right sticky booking card */}
         <aside className="lg:col-span-4">
           <div className="lg:sticky lg:top-24 space-y-4">
-            <div className="rounded-3xl border border-border bg-surface-elevated p-6 shadow-card">
-              <div className="flex items-baseline gap-1">
-                <span className="text-display text-4xl">{c.price}</span>
-                <span className="text-sm text-muted-foreground">MAD</span>
-                <span className="text-sm text-muted-foreground">/ shoot</span>
-              </div>
-              <div className="mt-1 text-xs text-muted-foreground">À partir de · {c.offers[0].name}</div>
+            <div className="rounded-3xl border border-border bg-surface-elevated p-6 shadow-card relative overflow-hidden">
+              {/* Subtle accent glow */}
+              <div className="absolute -right-12 -top-12 h-32 w-32 rounded-full bg-primary/10 blur-2xl pointer-events-none" />
 
-              <div className="mt-5 space-y-2 text-sm">
-                {c.offers.slice(0, 3).map((o) => (
-                  <Link
-                    key={o.id}
-                    to="/book/$id"
-                    params={{ id: c.id }}
-                    search={{ offer: o.id }}
-                    className="flex items-center justify-between p-3 rounded-xl bg-background border border-border hover:border-primary/50 transition"
-                  >
-                    <span className="text-muted-foreground truncate">{o.name}</span>
-                    <span className="font-medium flex items-center gap-1 shrink-0">{o.price} MAD <ChevronRight className="h-4 w-4" /></span>
-                  </Link>
-                ))}
+              <div className="flex items-center justify-between">
+                <span className="text-xs uppercase tracking-[0.18em] text-muted-foreground font-medium">A partir de</span>
+                <span className="inline-flex items-center gap-1.5 rounded-full bg-emerald-500/10 border border-emerald-500/20 px-3 py-1 text-[11px] font-medium text-emerald-400">
+                  <span className="h-1.5 w-1.5 rounded-full bg-emerald-400 animate-pulse" />
+                  Disponible ce mois
+                </span>
+              </div>
+
+              <div className="mt-4 flex items-baseline gap-1.5">
+                <span className="text-display text-4xl">{c.price}</span>
+                <span className="text-sm font-medium text-muted-foreground">MAD <span className="text-xs font-normal">/ shoot</span></span>
               </div>
 
               <Link
                 to="/book/$id"
                 params={{ id: c.id }}
-                className="mt-5 w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold hover:opacity-90 transition inline-flex items-center justify-center"
+                className="mt-6 w-full h-12 rounded-xl bg-primary text-primary-foreground font-semibold hover:opacity-90 active:scale-[0.99] transition-all inline-flex items-center justify-center shadow-lg shadow-primary/20"
               >
-                Réserver maintenant
+                Réserver mon créneau
               </Link>
-              <p className="mt-3 text-[11px] text-muted-foreground text-center">
-                Paiement sécurisé · Remboursé si annulation 72h avant
-              </p>
-            </div>
 
-            {/* Quick stats */}
-            <div className="rounded-3xl border border-border bg-surface p-6">
-              <div className="grid grid-cols-2 gap-4 text-center">
-                <div>
-                  <div className="text-display text-2xl">{c.shoots}</div>
-                  <div className="text-[11px] text-muted-foreground uppercase tracking-widest mt-1">Shoots</div>
+              <div className="mt-6 pt-6 border-t border-border/60 space-y-3.5 text-sm text-muted-foreground">
+                <div className="flex items-center gap-3">
+                  <div className="h-7 w-7 rounded-lg bg-surface border border-border grid place-items-center text-primary shrink-0">
+                    <MapPin className="h-4 w-4" />
+                  </div>
+                  <span>{c.city} <span className="text-foreground/70 font-medium">(±{c.radiusKm} km)</span></span>
                 </div>
-                <div>
-                  <div className="text-display text-2xl">{c.reviews}</div>
-                  <div className="text-[11px] text-muted-foreground uppercase tracking-widest mt-1">Avis</div>
+                <div className="flex items-center gap-3">
+                  <div className="h-7 w-7 rounded-lg bg-surface border border-border grid place-items-center text-primary shrink-0">
+                    <Star className="h-4 w-4 fill-primary" />
+                  </div>
+                  <span><strong className="text-foreground">{c.rating}</strong> ({c.reviews} avis vérifiés)</span>
+                </div>
+                <div className="flex items-center gap-3">
+                  <div className="h-7 w-7 rounded-lg bg-surface border border-border grid place-items-center text-primary shrink-0">
+                    🔒
+                  </div>
+                  <span>Paiement séquestre <strong className="text-foreground">WeShoot</strong></span>
                 </div>
               </div>
             </div>

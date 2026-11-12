@@ -1,31 +1,83 @@
 import { Link, useNavigate } from "@tanstack/react-router";
-import { Star, Heart, Camera, Video, ArrowUpRight } from "lucide-react";
+import { useCallback, useMemo, useRef, useState } from "react";
+import { Star, Heart, Camera, Video, ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 
 import type { Creator } from "@/lib/creators";
 import { useSaved } from "@/lib/store";
 import { getFirstName } from "@/lib/booking-rules";
 
+const SLIDES = 5;
+
 export function CreatorCard({ creator: c, featured = false }: { creator: Creator; featured?: boolean }) {
   const { isSaved, toggleSaved } = useSaved();
   const navigate = useNavigate();
+  const scroller = useRef<HTMLDivElement>(null);
+  const [index, setIndex] = useState(0);
+
+  // 5 visuels max : la couverture d'abord, puis le portfolio (sans doublon).
+  const slides = useMemo(
+    () => Array.from(new Set([c.cover, ...c.portfolio.map((p) => p.src)])).slice(0, SLIDES),
+    [c],
+  );
+
+  const goTo = useCallback((i: number) => {
+    const el = scroller.current;
+    if (!el) return;
+    const next = Math.max(0, Math.min(slides.length - 1, i));
+    el.scrollTo({ left: next * el.clientWidth, behavior: "smooth" });
+  }, [slides.length]);
+
+  const stop = (event: React.SyntheticEvent) => { event.preventDefault(); event.stopPropagation(); };
+  const arrowClass =
+    "glass pointer-events-auto absolute top-1/2 z-10 hidden h-9 w-9 -translate-y-1/2 place-items-center rounded-xl opacity-0 transition hover:scale-110 hover:bg-primary hover:text-primary-foreground group-hover:opacity-100 md:grid";
 
   return (
     <article className={`group relative overflow-hidden rounded-3xl bg-surface border border-border shadow-card hover:shadow-glow transition-all duration-500 ${featured ? "lg:col-span-2 lg:row-span-2" : ""}`}>
       <Link to="/creator/$id" params={{ id: c.id }} aria-label={`Voir le profil de ${getFirstName(c.name)}`} className={`relative block ${featured ? "aspect-[4/5] lg:aspect-auto lg:h-full" : "aspect-[4/5]"}`}>
-        <img
-          src={c.cover}
-          alt={`Réalisation de ${c.name}`}
-          loading={featured ? "eager" : "lazy"}
-          className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
-        />
-        <div className="absolute inset-x-0 top-0 p-4 flex items-start justify-between">
+        <div
+          ref={scroller}
+          onScroll={(e) => {
+            const el = e.currentTarget;
+            const i = Math.round(el.scrollLeft / el.clientWidth);
+            if (i !== index) setIndex(i);
+          }}
+          className="absolute inset-0 flex snap-x snap-mandatory overflow-x-auto overscroll-x-contain [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+        >
+          {slides.map((src, i) => (
+            <div key={src} className="relative h-full w-full shrink-0 snap-center overflow-hidden">
+              <img
+                src={src}
+                alt={`Réalisation ${i + 1} de ${c.name}`}
+                loading={featured && i === 0 ? "eager" : "lazy"}
+                draggable={false}
+                className="h-full w-full object-cover transition-transform duration-700 group-hover:scale-105"
+              />
+            </div>
+          ))}
+        </div>
+
+        {slides.length > 1 && (
+          <>
+            {index > 0 && (
+              <button type="button" aria-label="Photo précédente" onClick={(e) => { stop(e); goTo(index - 1); }} className={`${arrowClass} left-3`}>
+                <ChevronLeft className="h-4 w-4" />
+              </button>
+            )}
+            {index < slides.length - 1 && (
+              <button type="button" aria-label="Photo suivante" onClick={(e) => { stop(e); goTo(index + 1); }} className={`${arrowClass} right-3`}>
+                <ChevronRight className="h-4 w-4" />
+              </button>
+            )}
+          </>
+        )}
+        <div className="pointer-events-none absolute inset-x-0 top-0 p-4 flex items-start justify-between">
           <span className="glass rounded-lg px-3 py-1 text-xs flex items-center gap-1.5">
             {c.role === "Videographer" ? <Video className="h-3 w-3" /> : <Camera className="h-3 w-3" />}
             {c.role === "Photographer" ? "Photographe" : c.role === "Videographer" ? "Vidéaste" : "Photo & vidéo"}
           </span>
           <button
             onClick={(event) => { event.preventDefault(); event.stopPropagation(); toggleSaved(c.id); }}
-            className="glass h-9 w-9 rounded-xl grid place-items-center hover:scale-110 transition"
+            className="glass pointer-events-auto h-9 w-9 rounded-xl grid place-items-center hover:scale-110 transition"
             aria-label={isSaved(c.id) ? "Retirer des favoris" : "Ajouter aux favoris"}
           >
             <Heart className={`h-4 w-4 ${isSaved(c.id) ? "fill-primary text-primary" : ""}`} />
@@ -33,7 +85,7 @@ export function CreatorCard({ creator: c, featured = false }: { creator: Creator
         </div>
 
         <div
-          className="absolute inset-x-0 bottom-0 p-5"
+          className="pointer-events-none absolute inset-x-0 bottom-0 p-5"
           style={{ background: "linear-gradient(180deg, transparent, oklch(0 0 0 / 0.85))" }}
         >
           <div className="flex items-end justify-between gap-3">
@@ -72,7 +124,7 @@ export function CreatorCard({ creator: c, featured = false }: { creator: Creator
             </span>
             <button
               onClick={(event) => { event.preventDefault(); event.stopPropagation(); navigate({ to: "/book/$id", params: { id: c.id } }); }}
-              className="h-10 shrink-0 whitespace-nowrap rounded-full border border-white/15 bg-white/10 px-4 text-sm font-medium text-white backdrop-blur-md hover:border-primary hover:bg-primary hover:text-primary-foreground transition"
+              className="pointer-events-auto h-10 shrink-0 whitespace-nowrap rounded-full border border-white/15 bg-white/10 px-4 text-sm font-medium text-white backdrop-blur-md hover:border-primary hover:bg-primary hover:text-primary-foreground transition"
             >
               Réserver
             </button>

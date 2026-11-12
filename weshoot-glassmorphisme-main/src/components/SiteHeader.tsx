@@ -1,4 +1,4 @@
-import { Link } from "@tanstack/react-router";
+import { Link, useRouterState } from "@tanstack/react-router";
 import { Heart, CalendarCheck, LayoutDashboard, LogOut, Menu, MessageSquare } from "lucide-react";
 import { useState } from "react";
 
@@ -50,6 +50,7 @@ export function SiteHeader() {
   const { bookings } = useBookings();
   const [open, setOpen] = useState(false);
   const session = useDemoSession();
+  const onExplore = useRouterState({ select: (st) => st.location.pathname.startsWith("/explore") });
   const space = useClientSpace();
   const isCreator = session.isAuthenticated && session.role === "creator";
   const creator = useCreatorSpace(isCreator);
@@ -213,12 +214,21 @@ export function SiteHeader() {
           )}
           {/* Mobile : accès rapide + menu */}
           <div className="flex items-center gap-2 md:hidden">
-            {session.ready && !session.isAuthenticated && (
+            {session.ready && !session.isAuthenticated && !onExplore && (
               <Link
-                to="/login"
+                to="/explore"
                 className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-full bg-white px-4 text-sm font-medium text-black transition active:scale-95"
               >
-                Connexion
+                Parcourir ↗
+              </Link>
+            )}
+            {session.ready && session.isAuthenticated && !onExplore && (
+              <Link
+                to="/explore"
+                activeProps={{ className: "text-foreground" }}
+                className="px-1.5 text-sm text-muted-foreground transition hover:text-foreground"
+              >
+                Découvrir
               </Link>
             )}
             {session.ready && session.isAuthenticated ? (

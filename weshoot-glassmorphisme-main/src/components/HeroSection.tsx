@@ -150,7 +150,7 @@ const CONTROL =
 export function HeroSection() {
   const navigate = useNavigate();
   const [cur, setCur] = useState(0);
-  const [kind, setKind] = useState<Kind>("both");
+  const [kind, setKind] = useState<Kind>("photographe");
   const [ville, setVille] = useState("");
   const [prestation, setPrestation] = useState("");
   const touchX = useRef<number | null>(null);
@@ -245,10 +245,7 @@ className="relative left-1/2 isolate h-[calc(100svh_-_92px)] min-h-[600px] w-[ca
 
         {/* Contenu */}
         <div className="absolute inset-0 z-[5] flex flex-col items-start justify-center px-5 pb-14 pt-[72px] md:px-[clamp(20px,3vw,44px)] md:py-[76px]">
-          <div className="mb-4 inline-flex items-center gap-2.5 rounded-full border border-white/20 bg-black/25 px-3.5 py-2 text-[11px] uppercase tracking-[0.2em] text-white/85 backdrop-blur-[10px] md:mb-5 [@media(max-width:860px)_and_(max-height:760px)]:hidden">
-            <span className="h-1.5 w-1.5 bg-primary" />
-            Marketplace · Photo &amp; Video
-          </div>
+          
 
           <h1
             aria-label="Trouvez le photographe qui matche votre vision."
@@ -259,6 +256,7 @@ className="relative left-1/2 isolate h-[calc(100svh_-_92px)] min-h-[600px] w-[ca
             <RevealLine text="qui matche votre vision." delay={700} />
           </h1>
 
+          {/* Recherche */}
           {/* Recherche */}
           <form
             onSubmit={onSubmit}
@@ -285,22 +283,7 @@ className="relative left-1/2 isolate h-[calc(100svh_-_92px)] min-h-[600px] w-[ca
               ))}
             </div>
 
-            <label className={FIELD}>
-              <span className={LABEL}>Ville</span>
-              <input
-                list="hero-cities"
-                value={ville}
-                onChange={(e) => setVille(e.target.value)}
-                placeholder="Toutes les villes"
-                className={`${CONTROL} placeholder:text-white/60`}
-              />
-              <datalist id="hero-cities">
-                {CITIES.map((c) => (
-                  <option key={c} value={c} />
-                ))}
-              </datalist>
-            </label>
-
+            {/* Bloc Prestation (placé avant Ville) */}
             <label className={FIELD}>
               <span className={LABEL}>Prestation</span>
               <select
@@ -317,6 +300,23 @@ className="relative left-1/2 isolate h-[calc(100svh_-_92px)] min-h-[600px] w-[ca
                   </option>
                 ))}
               </select>
+            </label>
+
+            {/* Bloc Ville (placé après Prestation) */}
+            <label className={FIELD}>
+              <span className={LABEL}>Ville</span>
+              <input
+                list="hero-cities"
+                value={ville}
+                onChange={(e) => setVille(e.target.value)}
+                placeholder="Toutes les villes"
+                className={`${CONTROL} placeholder:text-white/60`}
+              />
+              <datalist id="hero-cities">
+                {CITIES.map((c) => (
+                  <option key={c} value={c} />
+                ))}
+              </datalist>
             </label>
 
             <button
