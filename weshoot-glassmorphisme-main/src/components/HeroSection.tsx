@@ -193,13 +193,11 @@ export function HeroSection() {
   };
 
   return (
-    <section className="mx-auto max-w-7xl px-6 pb-16 pt-4 sm:pt-5">
-      <div
+        <section className="mx-auto max-w-7xl px-6 pb-16 pt-3 sm:pt-5">      <div
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
         style={{ "--slide-ms": `${DURATION}ms` } as CSSProperties}
-        className="relative left-1/2 isolate h-[min(780px,calc(100svh_-_7rem))] min-h-[600px] w-[min(100vw_-_1.5rem,87rem)] -translate-x-1/2 overflow-hidden rounded-3xl border border-border bg-[#111] md:min-h-[560px]"
-      >
+className="relative left-1/2 isolate h-[calc(100svh_-_92px)] min-h-[600px] w-[calc(100vw_-_1rem)] -translate-x-1/2 overflow-hidden rounded-3xl border border-border bg-[#111] min-[861px]:h-[min(780px,calc(100svh_-_108px))] min-[861px]:min-h-[560px] min-[861px]:w-[min(100vw_-_1.5rem,87rem)]"      >
         {/* Slides */}
         <div>
           {SLIDES.map((s, k) => (
