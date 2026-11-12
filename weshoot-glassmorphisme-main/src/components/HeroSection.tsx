@@ -172,8 +172,6 @@ export function HeroSection() {
 
   const onSubmit = (e: FormEvent) => {
     e.preventDefault();
-    // ville -> q, prestation -> category (tes catégories existantes).
-    // `kind` (photographe / vidéaste) pas encore envoyé : dépend du schéma de /explore.
     const search: { q?: string; category?: Category } = {};
     if (ville.trim()) search.q = ville.trim();
     if (prestation) search.category = prestation as Category;
@@ -193,11 +191,13 @@ export function HeroSection() {
   };
 
   return (
-        <section className="mx-auto max-w-7xl px-6 pb-16 pt-3 sm:pt-5">      <div
+    <section className="mx-auto max-w-7xl px-6 pb-16 pt-3 sm:pt-5">
+      <div
         onTouchStart={onTouchStart}
         onTouchEnd={onTouchEnd}
         style={{ "--slide-ms": `${DURATION}ms` } as CSSProperties}
-className="relative left-1/2 isolate h-[calc(100svh_-_92px)] min-h-[600px] w-[calc(100vw_-_1rem)] -translate-x-1/2 overflow-hidden rounded-3xl border border-border bg-[#111] min-[861px]:h-[min(780px,calc(100svh_-_108px))] min-[861px]:min-h-[560px] min-[861px]:w-[min(100vw_-_1.5rem,87rem)]"      >
+        className="relative left-1/2 isolate h-[calc(100svh_-_92px)] min-h-[600px] w-[calc(100vw_-_1rem)] -translate-x-1/2 overflow-hidden rounded-3xl border border-border bg-[#111] min-[861px]:h-[min(780px,calc(100svh_-_108px))] min-[861px]:min-h-[560px] min-[861px]:w-[min(100vw_-_1.5rem,87rem)]"
+      >
         {/* Slides */}
         <div>
           {SLIDES.map((s, k) => (
@@ -245,8 +245,6 @@ className="relative left-1/2 isolate h-[calc(100svh_-_92px)] min-h-[600px] w-[ca
 
         {/* Contenu */}
         <div className="absolute inset-0 z-[5] flex flex-col items-start justify-center px-5 pb-14 pt-[72px] md:px-[clamp(20px,3vw,44px)] md:py-[76px]">
-          
-
           <h1
             aria-label="Trouvez le photographe qui matche votre vision."
             className="max-w-[12em] text-[clamp(36px,11.5vw,64px)] font-bold leading-[0.98] tracking-[-0.04em] [text-shadow:0_2px_24px_rgb(0_0_0/.25)] md:text-[clamp(38px,6vw,84px)]"
@@ -256,7 +254,6 @@ className="relative left-1/2 isolate h-[calc(100svh_-_92px)] min-h-[600px] w-[ca
             <RevealLine text="qui matche votre vision." delay={700} />
           </h1>
 
-          {/* Recherche */}
           {/* Recherche */}
           <form
             onSubmit={onSubmit}
@@ -283,7 +280,7 @@ className="relative left-1/2 isolate h-[calc(100svh_-_92px)] min-h-[600px] w-[ca
               ))}
             </div>
 
-            {/* Bloc Prestation (placé avant Ville) */}
+            {/* Bloc Prestation */}
             <label className={FIELD}>
               <span className={LABEL}>Prestation</span>
               <select
@@ -302,21 +299,23 @@ className="relative left-1/2 isolate h-[calc(100svh_-_92px)] min-h-[600px] w-[ca
               </select>
             </label>
 
-            {/* Bloc Ville (placé après Prestation) */}
+            {/* Bloc Ville (transformé en select) */}
             <label className={FIELD}>
               <span className={LABEL}>Ville</span>
-              <input
-                list="hero-cities"
+              <select
                 value={ville}
                 onChange={(e) => setVille(e.target.value)}
-                placeholder="Toutes les villes"
-                className={`${CONTROL} placeholder:text-white/60`}
-              />
-              <datalist id="hero-cities">
+                className={`${CONTROL} cursor-pointer appearance-none`}
+              >
+                <option value="" className="text-black">
+                  Toutes les villes
+                </option>
                 {CITIES.map((c) => (
-                  <option key={c} value={c} />
+                  <option key={c} value={c} className="text-black">
+                    {c}
+                  </option>
                 ))}
-              </datalist>
+              </select>
             </label>
 
             <button

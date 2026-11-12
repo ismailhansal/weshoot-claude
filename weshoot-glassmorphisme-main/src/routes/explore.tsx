@@ -1,5 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Camera, Check, ChevronDown, Film, LayoutGrid, MapPin, SlidersHorizontal } from "lucide-react";
+import { Camera, Check, ChevronDown, Film, LayoutGrid, MapPin, SlidersHorizontal, X } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { CreatorCard } from "@/components/CreatorCard";
@@ -27,63 +27,14 @@ export const Route = createFileRoute("/explore")({
 });
 
 type Role = "Photographer" | "Videographer" | "Photo & Video";
-const formatOptions: { value: Role; label: string; icon: typeof Camera }[] = [
-  { value: "Photographer", label: "Photo", icon: Camera },
-  { value: "Videographer", label: "Vidéo", icon: Film },
-  { value: "Photo & Video", label: "Les deux", icon: LayoutGrid },
+const formatOptions: { value: Role; label: string }[] = [
+  { value: "Photographer", label: "Photo" },
+  { value: "Videographer", label: "Vidéo" },
+  { value: "Photo & Video", label: "Les deux" },
 ];
-
-/** Champ étiqueté (label + valeur) avec liste déroulante glassmorphisme à la place du <select> natif. */
-function GlassSelect({ value, onChange, options, icon: Icon, label, muted = false }: {
-  value: string;
-  onChange: (v: string) => void;
-  options: { value: string; label: string }[];
-  icon: typeof MapPin;
-  label: string;
-  /** Valeur par défaut ("Toutes…") affichée en grisé comme un placeholder. */
-  muted?: boolean;
-}) {
-  const current = options.find((o) => o.value === value)?.label ?? value;
-  return (
-    <DropdownMenu>
-      <DropdownMenuTrigger asChild>
-        <button
-          type="button"
-          className="group flex w-full cursor-pointer items-center gap-4 px-5 py-4 text-left outline-none transition hover:bg-white/5 focus-visible:bg-white/10 data-[state=open]:bg-white/10"
-        >
-          <span className="grid h-11 w-11 shrink-0 place-items-center rounded-full bg-primary/15 text-primary">
-            <Icon className="h-5 w-5" />
-          </span>
-          <span className="min-w-0 flex-1">
-            <span className="block text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">{label}</span>
-            <span className={`mt-1 block truncate text-base ${muted ? "text-muted-foreground" : "font-medium text-foreground"}`}>{current}</span>
-          </span>
-          <ChevronDown className="h-5 w-5 shrink-0 text-muted-foreground transition-transform group-data-[state=open]:rotate-180" />
-        </button>
-      </DropdownMenuTrigger>
-      <DropdownMenuContent
-        align="center"
-        sideOffset={6}
-        className="max-h-72 min-w-[var(--radix-dropdown-menu-trigger-width)] overflow-y-auto rounded-2xl border border-white/15 bg-background/80 p-1.5 text-foreground backdrop-blur-2xl backdrop-saturate-150 shadow-[inset_0_1px_0_0_rgb(255_255_255/0.12),0_24px_60px_-12px_rgb(0_0_0/0.75)]"
-      >
-        {options.map((o) => (
-          <DropdownMenuItem
-            key={o.value}
-            onSelect={() => onChange(o.value)}
-            className="cursor-pointer justify-between gap-3 rounded-xl px-4 py-3 text-sm focus:bg-white/10 focus:text-foreground"
-          >
-            <span className={o.value === value ? "font-semibold text-primary" : ""}>{o.label}</span>
-            {o.value === value && <Check className="h-4 w-4 text-primary" />}
-          </DropdownMenuItem>
-        ))}
-      </DropdownMenuContent>
-    </DropdownMenu>
-  );
-}
 
 const normalize = (v: string) => v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
 
-/** Pré-sélection depuis l'URL (?category=…) ou depuis la recherche de l'accueil (?q=Mariage à Marrakech). */
 function initialFilters(search: { category?: string; q?: string }) {
   let category = ALL_CATEGORIES;
   let city = cities[0];
@@ -104,9 +55,8 @@ function Explore() {
   const [role, setRole] = useState<Role | null>(null);
   const [maxPrice, setMaxPrice] = useState(10000);
   const [sort, setSort] = useState<"relevance" | "price-asc" | "price-desc" | "rating">("relevance");
-  // Mobile : filtres supplémentaires (budget, tri) repliés par défaut
-  const [moreOpen, setMoreOpen] = useState(false);
-  // Tablette / desktop : ancien panneau de filtres
+  
+  const [advancedOpen, setAdvancedOpen] = useState(false);
   const [filtersOpen, setFiltersOpen] = useState(false);
 
   const results = useMemo(() => {
@@ -124,8 +74,14 @@ function Explore() {
     return sorted;
   }, [city, category, role, maxPrice, sort]);
 
-  const extraCount = [maxPrice < 10000, sort !== "relevance"].filter(Boolean).length;
-  const activeCount = [category !== ALL_CATEGORIES, city !== cities[0], role !== null, maxPrice < 10000, sort !== "relevance"].filter(Boolean).length;
+  const activeCount = [
+    category !== ALL_CATEGORIES,
+    city !== cities[0],
+    role !== null,
+    maxPrice < 10000,
+    sort !== "relevance"
+  ].filter(Boolean).length;
+
   const summary = [category !== ALL_CATEGORIES && category, city !== cities[0] && city].filter(Boolean).join(" · ") || "Tous les créateurs";
 
   const reset = () => {
@@ -136,137 +92,228 @@ function Explore() {
     setSort("relevance");
   };
 
+  const formatLabel = formatOptions.find((f) => f.value === role)?.label ?? "Format";
+
   return (
     <div className="min-h-screen bg-background text-foreground">
       <SiteHeader />
 
-      <section className="mx-auto max-w-7xl px-6 pt-6 md:pt-10">
+      <section className="mx-auto max-w-7xl px-4 pt-4 md:px-6 md:pt-10">
         <h1 className="sr-only md:not-sr-only text-display text-4xl md:text-5xl">Découvrir</h1>
-        {/* Mobile : barre de recherche étiquetée, aérée */}
-        <div className="glass rounded-3xl p-3 shadow-card md:hidden">
-          <div className="divide-y divide-white/10 overflow-hidden rounded-2xl bg-white/[0.04]">
-            <GlassSelect
-              label="Prestation"
-              icon={LayoutGrid}
-              value={category}
-              muted={category === ALL_CATEGORIES}
-              onChange={setCategory}
-              options={[{ value: ALL_CATEGORIES, label: "Toutes les prestations" }, ...serviceCategories.map((c) => ({ value: c, label: c }))]}
-            />
-            <GlassSelect
-              label="Ville"
-              icon={MapPin}
-              value={city}
-              muted={city === cities[0]}
-              onChange={setCity}
-              options={cities.map((c) => ({ value: c, label: c }))}
-            />
+
+        {/* VERSION MOBILE : Barre horizontale fluide sans curseur/barre de défilement */}
+        <div className="md:hidden">
+          <div 
+            className="flex items-center gap-2 overflow-x-auto py-1 [-ms-overflow-style:none] [scrollbar-width:none] [&::-webkit-scrollbar]:hidden"
+          >
+            
+            {/* 1. Prestation */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className={`flex h-10 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border px-3.5 text-xs font-medium transition ${
+                    category !== ALL_CATEGORIES
+                      ? "border-primary bg-white text-black font-semibold"
+                      : "border-white/15 bg-[#0e0e0e]/70 text-white backdrop-blur-xl hover:bg-white/[0.12]"
+                  }`}
+                >
+                  <LayoutGrid className="h-3.5 w-3.5" />
+                  <span className="max-w-[110px] truncate">{category === ALL_CATEGORIES ? "Prestation" : category}</span>
+                  <ChevronDown className="h-3 w-3 opacity-60" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="max-h-72 min-w-[220px] overflow-y-auto rounded-2xl border border-white/15 bg-[#0e0e0e]/95 p-1.5 text-white backdrop-blur-2xl shadow-2xl">
+                <DropdownMenuItem
+                  onSelect={() => setCategory(ALL_CATEGORIES)}
+                  className="cursor-pointer justify-between rounded-xl px-3 py-2.5 text-sm focus:bg-white/15 focus:text-white"
+                >
+                  <span className={category === ALL_CATEGORIES ? "font-semibold text-primary" : ""}>Toutes les prestations</span>
+                  {category === ALL_CATEGORIES && <Check className="h-4 w-4 text-primary" />}
+                </DropdownMenuItem>
+                {serviceCategories.map((c) => (
+                  <DropdownMenuItem
+                    key={c}
+                    onSelect={() => setCategory(c)}
+                    className="cursor-pointer justify-between rounded-xl px-3 py-2.5 text-sm focus:bg-white/15 focus:text-white"
+                  >
+                    <span className={category === c ? "font-semibold text-primary" : ""}>{c}</span>
+                    {category === c && <Check className="h-4 w-4 text-primary" />}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* 2. Ville */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className={`flex h-10 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border px-3.5 text-xs font-medium transition ${
+                    city !== cities[0]
+                      ? "border-primary bg-white text-black font-semibold"
+                      : "border-white/15 bg-[#0e0e0e]/70 text-white backdrop-blur-xl hover:bg-white/[0.12]"
+                  }`}
+                >
+                  <MapPin className="h-3.5 w-3.5" />
+                  <span className="max-w-[100px] truncate">{city === cities[0] ? "Ville" : city}</span>
+                  <ChevronDown className="h-3 w-3 opacity-60" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="max-h-72 min-w-[200px] overflow-y-auto rounded-2xl border border-white/15 bg-[#0e0e0e]/95 p-1.5 text-white backdrop-blur-2xl shadow-2xl">
+                {cities.map((c) => (
+                  <DropdownMenuItem
+                    key={c}
+                    onSelect={() => setCity(c)}
+                    className="cursor-pointer justify-between rounded-xl px-3 py-2.5 text-sm focus:bg-white/15 focus:text-white"
+                  >
+                    <span className={city === c ? "font-semibold text-primary" : ""}>{c}</span>
+                    {city === c && <Check className="h-4 w-4 text-primary" />}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* 3. Format */}
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <button
+                  type="button"
+                  className={`flex h-10 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border px-3.5 text-xs font-medium transition ${
+                    role !== null
+                      ? "border-primary bg-white text-black font-semibold"
+                      : "border-white/15 bg-[#0e0e0e]/70 text-white backdrop-blur-xl hover:bg-white/[0.12]"
+                  }`}
+                >
+                  <Camera className="h-3.5 w-3.5" />
+                  <span>{role === null ? "Format" : formatLabel}</span>
+                  <ChevronDown className="h-3 w-3 opacity-60" />
+                </button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="start" className="min-w-[180px] rounded-2xl border border-white/15 bg-[#0e0e0e]/95 p-1.5 text-white backdrop-blur-2xl shadow-2xl">
+                <DropdownMenuItem
+                  onSelect={() => setRole(null)}
+                  className="cursor-pointer justify-between rounded-xl px-3 py-2.5 text-sm focus:bg-white/15 focus:text-white"
+                >
+                  <span className={role === null ? "font-semibold text-primary" : ""}>Tous les formats</span>
+                  {role === null && <Check className="h-4 w-4 text-primary" />}
+                </DropdownMenuItem>
+                {formatOptions.map((f) => (
+                  <DropdownMenuItem
+                    key={f.value}
+                    onSelect={() => setRole(f.value)}
+                    className="cursor-pointer justify-between rounded-xl px-3 py-2.5 text-sm focus:bg-white/15 focus:text-white"
+                  >
+                    <span className={role === f.value ? "font-semibold text-primary" : ""}>{f.label}</span>
+                    {role === f.value && <Check className="h-4 w-4 text-primary" />}
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+
+            {/* 4. Bouton Filtres Avancés */}
+            <button
+              type="button"
+              onClick={() => setAdvancedOpen((o) => !o)}
+              className={`flex h-10 shrink-0 cursor-pointer items-center gap-1.5 rounded-full border px-3.5 text-xs font-medium transition ${
+                advancedOpen || maxPrice < 10000 || sort !== "relevance"
+                  ? "border-primary bg-primary text-white font-semibold"
+                  : "border-white/15 bg-[#0e0e0e]/70 text-white backdrop-blur-xl hover:bg-white/[0.12]"
+              }`}
+            >
+              <SlidersHorizontal className="h-3.5 w-3.5" />
+              <span>Filtres</span>
+              {activeCount > 0 && (
+                <span className="grid h-4 min-w-4 place-items-center rounded-full bg-black px-1 text-[10px] font-bold text-white">
+                  {activeCount}
+                </span>
+              )}
+            </button>
+
+            {/* Reset rapide */}
+            {activeCount > 0 && (
+              <button
+                type="button"
+                onClick={reset}
+                className="flex h-10 shrink-0 items-center gap-1 rounded-full px-2 text-xs text-white/70 hover:text-white"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            )}
           </div>
 
-          <div className="px-2 pb-1 pt-6" role="group" aria-label="Format">
-            <div className="text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">Format</div>
-            <div className="mt-3 grid grid-cols-3 gap-2.5">
-              {formatOptions.map(({ value, label, icon: Icon }) => {
-                const active = role === value;
-                return (
-                  <button
-                    key={value}
-                    type="button"
-                    aria-pressed={active}
-                    onClick={() => setRole(active ? null : value)}
-                    className={`flex h-14 cursor-pointer flex-col items-center justify-center gap-1.5 rounded-2xl border text-xs font-medium transition active:scale-[0.97] ${
-                      active
-                        ? "border-primary bg-primary text-primary-foreground"
-                        : "border-white/10 bg-white/[0.06] text-foreground hover:border-primary/60 hover:bg-white/10"
-                    }`}
-                  >
-                    <Icon className="h-[18px] w-[18px]" /> {label}
-                  </button>
-                );
-              })}
+          {/* Panneau mobile des filtres avancés (en verre) */}
+          {advancedOpen && (
+            <div className="mt-3 space-y-4 rounded-[22px] border border-white/15 bg-[#0e0e0e]/90 p-4 text-white backdrop-blur-2xl animate-in fade-in slide-in-from-top-2 duration-200">
+              <div>
+                <div className="flex items-center justify-between text-xs font-semibold uppercase tracking-wider text-white/60">
+                  <span>Budget max</span>
+                  <span className="text-white font-bold">{maxPrice} MAD</span>
+                </div>
+                <input
+                  type="range"
+                  min={1000}
+                  max={10000}
+                  step={500}
+                  value={maxPrice}
+                  onChange={(e) => setMaxPrice(Number(e.target.value))}
+                  className="mt-3 w-full accent-primary"
+                />
+              </div>
+
+              <div>
+                <div className="text-xs font-semibold uppercase tracking-wider text-white/60">Trier par</div>
+                <div className="mt-2 grid grid-cols-2 gap-2">
+                  {[
+                    { value: "relevance", label: "Pertinence" },
+                    { value: "price-asc", label: "Prix croissant" },
+                    { value: "price-desc", label: "Prix décroissant" },
+                    { value: "rating", label: "Meilleures notes" },
+                  ].map((s) => (
+                    <button
+                      key={s.value}
+                      type="button"
+                      onClick={() => setSort(s.value as typeof sort)}
+                      className={`rounded-xl border px-2.5 py-2 text-xs font-medium transition ${
+                        sort === s.value
+                          ? "border-primary bg-white text-black font-semibold"
+                          : "border-white/15 bg-white/[0.05] text-white/80 hover:bg-white/10"
+                      }`}
+                    >
+                      {s.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
             </div>
-          </div>
+          )}
+        </div>
+
+        {/* VERSION TABLETTE / DESKTOP */}
+        <div className="hidden md:block">
+          <p className="mt-3 max-w-xl text-muted-foreground">
+            {creators.length} créateurs vérifiés. Filtrez par catégorie, ville, format et budget.
+          </p>
 
           <button
             type="button"
-            onClick={() => setMoreOpen((o) => !o)}
-            aria-expanded={moreOpen}
-            aria-controls="explore-more-filters"
-            className="mt-3 flex h-11 w-full cursor-pointer items-center justify-center gap-2 rounded-2xl text-sm text-muted-foreground transition hover:text-foreground"
+            onClick={() => setFiltersOpen((o) => !o)}
+            aria-expanded={filtersOpen}
+            aria-controls="explore-filters"
+            className="glass mt-6 flex h-12 w-full cursor-pointer items-center justify-between gap-3 rounded-2xl px-4 shadow-card transition hover:border-primary/60 lg:hidden"
           >
-            <SlidersHorizontal className="h-4 w-4" />
-            Plus de filtres
-            {extraCount > 0 && (
-              <span className="grid h-5 min-w-5 place-items-center rounded-md bg-primary px-1.5 text-[11px] font-bold text-primary-foreground">{extraCount}</span>
-            )}
-            <ChevronDown className={`h-4 w-4 transition-transform ${moreOpen ? "rotate-180" : ""}`} />
+            <span className="flex shrink-0 items-center gap-2.5 text-sm font-medium">
+              <SlidersHorizontal className="h-4 w-4 text-primary" /> Filtres
+              {activeCount > 0 && (
+                <span className="grid h-5 min-w-5 place-items-center rounded-md bg-primary px-1.5 text-[11px] font-bold text-primary-foreground">{activeCount}</span>
+              )}
+            </span>
+            <span className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
+              <span className="truncate">{summary}</span>
+              <ChevronDown className={`h-4 w-4 shrink-0 transition-transform ${filtersOpen ? "rotate-180" : ""}`} />
+            </span>
           </button>
 
-          <div id="explore-more-filters" className={`${moreOpen ? "block" : "hidden"} space-y-6 border-t border-white/10 px-2 pb-2 pt-6`}>
-            <div>
-              <div className="flex items-center justify-between text-[11px] font-semibold uppercase tracking-[0.16em] text-muted-foreground">
-                <span>Budget max</span>
-                <span className="text-sm tabular-nums tracking-normal text-foreground">{maxPrice} MAD</span>
-              </div>
-              <input
-                type="range"
-                min={1000}
-                max={10000}
-                step={500}
-                value={maxPrice}
-                onChange={(e) => setMaxPrice(Number(e.target.value))}
-                className="mt-4 w-full accent-primary"
-              />
-            </div>
-            <div className="overflow-hidden rounded-2xl bg-white/[0.04]">
-              <GlassSelect
-                label="Trier par"
-                icon={SlidersHorizontal}
-                value={sort}
-                onChange={(v) => setSort(v as typeof sort)}
-                options={[
-                  { value: "relevance", label: "Pertinence" },
-                  { value: "price-asc", label: "Prix croissant" },
-                  { value: "price-desc", label: "Prix décroissant" },
-                  { value: "rating", label: "Meilleures notes" },
-                ]}
-              />
-            </div>
-            <button
-              type="button"
-              onClick={reset}
-              className="h-11 w-full rounded-2xl border border-white/10 text-sm transition hover:bg-white/5"
-            >
-              Réinitialiser les filtres
-            </button>
-          </div>
-        </div>
-
-        <p className="mt-3 hidden max-w-xl text-muted-foreground md:block">
-          {creators.length} créateurs vérifiés. Filtrez par catégorie, ville, format et budget.
-        </p>
-
-        {/* Tablette / desktop : bouton pour déplier les filtres (fermés par défaut sous lg) */}
-        <button
-          type="button"
-          onClick={() => setFiltersOpen((o) => !o)}
-          aria-expanded={filtersOpen}
-          aria-controls="explore-filters"
-          className="glass mt-6 hidden h-12 w-full cursor-pointer items-center justify-between gap-3 rounded-2xl px-4 shadow-card transition hover:border-primary/60 md:flex lg:hidden"
-        >
-          <span className="flex shrink-0 items-center gap-2.5 text-sm font-medium">
-            <SlidersHorizontal className="h-4 w-4 text-primary" /> Filtres
-            {activeCount > 0 && (
-              <span className="grid h-5 min-w-5 place-items-center rounded-md bg-primary px-1.5 text-[11px] font-bold text-primary-foreground">{activeCount}</span>
-            )}
-          </span>
-          <span className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
-            <span className="truncate">{summary}</span>
-            <ChevronDown className={`h-4 w-4 shrink-0 transition-transform ${filtersOpen ? "rotate-180" : ""}`} />
-          </span>
-        </button>
-
-        <div className="hidden md:block">
           <div
             id="explore-filters"
             className={`${filtersOpen ? "flex" : "hidden"} mt-3 flex-col items-stretch gap-2 rounded-2xl p-2 shadow-card glass sm:flex-row sm:items-center lg:mt-8 lg:flex`}
@@ -302,7 +349,8 @@ function Explore() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 mt-6 grid lg:grid-cols-12 gap-8 pb-24">
+      {/* Grille principale */}
+      <section className="mx-auto max-w-7xl px-4 md:px-6 mt-6 grid lg:grid-cols-12 gap-8 pb-24">
         <aside className={`${filtersOpen ? "max-md:hidden md:block" : "hidden"} lg:col-span-3 lg:block`}>
           <div className="lg:sticky lg:top-24 rounded-2xl border border-border bg-surface p-6 space-y-6">
             <div className="flex items-center gap-2 text-sm font-semibold">
@@ -365,14 +413,6 @@ function Explore() {
             >
               Réinitialiser
             </button>
-
-            <button
-              type="button"
-              onClick={() => setFiltersOpen(false)}
-              className="h-11 w-full rounded-xl bg-primary text-sm font-semibold text-primary-foreground transition hover:opacity-90 lg:hidden"
-            >
-              Voir {results.length} résultat{results.length > 1 ? "s" : ""}
-            </button>
           </div>
         </aside>
 
@@ -390,7 +430,7 @@ function Explore() {
             </div>
           ) : (
             <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5">
-              {results.map((c) => (
+              {results.link ? null : results.map((c) => (
                 <CreatorCard key={c.id} creator={c} />
               ))}
             </div>
