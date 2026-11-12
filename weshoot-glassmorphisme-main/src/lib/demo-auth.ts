@@ -3,8 +3,19 @@ import { useEffect, useState } from "react";
 const DEMO_SESSION_KEY = "weshoot.demo-session";
 const DEMO_NAME_KEY = "weshoot.demo-name";
 const DEMO_AVATAR_KEY = "weshoot.demo-avatar";
+const DEMO_ROLE_KEY = "weshoot.demo-role";
 const DEMO_PROFILES_KEY = "weshoot.demo-profiles";
 const AUTH_EVENT = "weshoot:auth";
+
+export type DemoRole = "client" | "creator";
+
+/** Compte démo créateur : sert à tester l'espace prestataire (mot de passe libre en mode démo). */
+export const DEMO_CREATOR_EMAIL = "amine@weshoot.demo";
+
+/** Sans backend, le type de compte est déduit de l'email ; il viendra du serveur plus tard. */
+export function getRoleForEmail(email: string): DemoRole {
+  return email.trim().toLowerCase() === DEMO_CREATOR_EMAIL ? "creator" : "client";
+}
 
 type DemoProfile = { name?: string; avatar?: string };
 
@@ -38,9 +49,15 @@ export function getDemoSessionAvatar(): string | null {
 }
 
 /** `avatar` : data URL (image réduite) issue de la photo de profil de l'inscription. */
-export function startDemoSession(email: string, name?: string, avatar?: string): void {
+export function getDemoSessionRole(): DemoRole {
+  if (typeof window === "undefined") return "client";
+  return window.localStorage.getItem(DEMO_ROLE_KEY) === "creator" ? "creator" : "client";
+}
+
+export function startDemoSession(email: string, name?: string, avatar?: string, role: DemoRole = getRoleForEmail(email)): void {
   if (typeof window === "undefined") return;
   window.localStorage.setItem(DEMO_SESSION_KEY, email.trim());
+  window.localStorage.setItem(DEMO_ROLE_KEY, role);
   if (name?.trim()) window.localStorage.setItem(DEMO_NAME_KEY, name.trim());
   else window.localStorage.removeItem(DEMO_NAME_KEY);
   try {
@@ -64,6 +81,7 @@ export function endDemoSession(): void {
   window.localStorage.removeItem(DEMO_SESSION_KEY);
   window.localStorage.removeItem(DEMO_NAME_KEY);
   window.localStorage.removeItem(DEMO_AVATAR_KEY);
+  window.localStorage.removeItem(DEMO_ROLE_KEY);
   window.dispatchEvent(new Event(AUTH_EVENT));
 }
 
@@ -94,15 +112,16 @@ export function getDisplayName(email: string | null, name: string | null): strin
  * du localStorage côté navigateur, pour éviter un flash au premier rendu.
  */
 export function useDemoSession() {
-  const [state, setState] = useState<{ ready: boolean; email: string | null; name: string | null; avatar: string | null }>({
+  const [state, setState] = useState<{ ready: boolean; email: string | null; name: string | null; avatar: string | null; role: DemoRole }>({
     ready: false,
     email: null,
     name: null,
     avatar: null,
+    role: "client",
   });
 
   useEffect(() => {
-    const sync = () => setState({ ready: true, email: getDemoSessionEmail(), name: getDemoSessionName(), avatar: getDemoSessionAvatar() });
+    const sync = () => setState({ ready: true, email: getDemoSessionEmail(), name: getDemoSessionName(), avatar: getDemoSessionAvatar(), role: getDemoSessionRole() });
     sync();
     window.addEventListener(AUTH_EVENT, sync);
     window.addEventListener("storage", sync);

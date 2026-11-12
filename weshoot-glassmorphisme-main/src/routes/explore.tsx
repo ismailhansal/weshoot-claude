@@ -1,11 +1,11 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { Search, MapPin, SlidersHorizontal } from "lucide-react";
+import { ChevronDown, LayoutGrid, MapPin, SlidersHorizontal } from "lucide-react";
 import { useMemo, useState } from "react";
 
 import { CreatorCard } from "@/components/CreatorCard";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
-import { categories, cities, creators } from "@/lib/creators";
+import { ALL_CATEGORIES, cities, creators, serviceCategories } from "@/lib/creators";
 
 export const Route = createFileRoute("/explore")({
   validateSearch: (search: Record<string, unknown>): { category?: string; q?: string } => ({
@@ -27,24 +27,38 @@ export const Route = createFileRoute("/explore")({
 
 const roles = ["Tous", "Photographer", "Videographer", "Photo & Video"] as const;
 
+const normalize = (v: string) => v.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toLowerCase();
+
+/** Pré-sélection depuis l'URL (?category=…) ou depuis la recherche de l'accueil (?q=Mariage à Marrakech). */
+function initialFilters(search: { category?: string; q?: string }) {
+  let category = ALL_CATEGORIES;
+  let city = cities[0];
+  if (search.category && serviceCategories.includes(search.category)) category = search.category;
+  if (search.q) {
+    const q = normalize(search.q);
+    if (category === ALL_CATEGORIES) category = serviceCategories.find((c) => q.includes(normalize(c))) ?? ALL_CATEGORIES;
+    city = cities.slice(1).find((c) => q.includes(normalize(c))) ?? cities[0];
+  }
+  return { category, city };
+}
+
 function Explore() {
-  const [query, setQuery] = useState("");
-  const [city, setCity] = useState(cities[0]);
-  const [category, setCategory] = useState("For You");
+  const search = Route.useSearch();
+  const [initial] = useState(() => initialFilters(search));
+  const [city, setCity] = useState(initial.city);
+  const [category, setCategory] = useState(initial.category);
   const [role, setRole] = useState<(typeof roles)[number]>("Tous");
   const [maxPrice, setMaxPrice] = useState(10000);
   const [sort, setSort] = useState<"relevance" | "price-asc" | "price-desc" | "rating">("relevance");
+  // Mobile / tablette : filtres repliés par défaut pour laisser la place aux résultats
+  const [filtersOpen, setFiltersOpen] = useState(false);
 
   const results = useMemo(() => {
-    const q = query.trim().toLowerCase();
     const list = creators.filter((c) => {
-      const matchQuery =
-        !q ||
-        [c.name, c.city, c.role, c.handle, ...c.tags, ...c.categories].join(" ").toLowerCase().includes(q);
       const matchCity = city === cities[0] || c.city === city;
-      const matchCategory = category === "For You" || c.categories.includes(category) || c.tags.includes(category);
+      const matchCategory = category === ALL_CATEGORIES || c.categories.includes(category);
       const matchRole = role === "Tous" || c.role === role;
-      return matchQuery && matchCity && matchCategory && matchRole && c.price <= maxPrice;
+      return matchCity && matchCategory && matchRole && c.price <= maxPrice;
     });
 
     const sorted = [...list];
@@ -52,12 +66,20 @@ function Explore() {
     if (sort === "price-desc") sorted.sort((a, b) => b.price - a.price);
     if (sort === "rating") sorted.sort((a, b) => b.rating - a.rating);
     return sorted;
-  }, [query, city, category, role, maxPrice, sort]);
+  }, [city, category, role, maxPrice, sort]);
+
+  const activeCount = [
+    category !== ALL_CATEGORIES,
+    city !== cities[0],
+    role !== "Tous",
+    maxPrice < 10000,
+    sort !== "relevance",
+  ].filter(Boolean).length;
+  const summary = [category !== ALL_CATEGORIES && category, city !== cities[0] && city].filter(Boolean).join(" · ") || "Tous les créateurs";
 
   const reset = () => {
-    setQuery("");
     setCity(cities[0]);
-    setCategory("For You");
+    setCategory(ALL_CATEGORIES);
     setRole("Tous");
     setMaxPrice(10000);
     setSort("relevance");
@@ -70,52 +92,65 @@ function Explore() {
       <section className="mx-auto max-w-7xl px-6 pt-10">
         <h1 className="text-display text-4xl md:text-5xl">Découvrir</h1>
         <p className="mt-3 text-muted-foreground max-w-xl">
-          {creators.length} créateurs vérifiés. Filtrez par ville, style, format et budget.
+          {creators.length} créateurs vérifiés. Filtrez par catégorie, ville, format et budget.
         </p>
 
-        <div className="mt-8 glass rounded-2xl p-2 flex flex-col sm:flex-row items-stretch sm:items-center gap-2 shadow-card">
-          <div className="flex items-center gap-3 pl-4 flex-1 min-w-0">
-            <Search className="h-4 w-4 text-muted-foreground shrink-0" />
-            <input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Mariage à Marrakech, clip, portrait éditorial…"
-              className="bg-transparent outline-none text-sm placeholder:text-muted-foreground flex-1 py-2 min-w-0"
-            />
-          </div>
-          <div className="flex items-center gap-1.5 px-3 sm:border-l border-border text-sm text-muted-foreground">
-            <MapPin className="h-4 w-4" />
+        {/* Mobile / tablette : bouton pour déplier les filtres (fermés par défaut) */}
+        <button
+          type="button"
+          onClick={() => setFiltersOpen((o) => !o)}
+          aria-expanded={filtersOpen}
+          aria-controls="explore-filters"
+          className="glass mt-6 flex h-12 w-full cursor-pointer items-center justify-between gap-3 rounded-2xl px-4 shadow-card transition hover:border-primary/60 lg:hidden"
+        >
+          <span className="flex shrink-0 items-center gap-2.5 text-sm font-medium">
+            <SlidersHorizontal className="h-4 w-4 text-primary" /> Filtres
+            {activeCount > 0 && (
+              <span className="grid h-5 min-w-5 place-items-center rounded-md bg-primary px-1.5 text-[11px] font-bold text-primary-foreground">{activeCount}</span>
+            )}
+          </span>
+          <span className="flex min-w-0 items-center gap-2 text-xs text-muted-foreground">
+            <span className="truncate">{summary}</span>
+            <ChevronDown className={`h-4 w-4 shrink-0 transition-transform ${filtersOpen ? "rotate-180" : ""}`} />
+          </span>
+        </button>
+
+        <div
+          id="explore-filters"
+          className={`${filtersOpen ? "flex" : "hidden"} mt-3 flex-col items-stretch gap-2 rounded-2xl p-2 shadow-card glass sm:flex-row sm:items-center lg:mt-8 lg:flex`}
+        >
+          <label className="flex min-w-0 flex-1 items-center gap-3 pl-4">
+            <LayoutGrid className="h-4 w-4 shrink-0 text-muted-foreground" />
+            <span className="sr-only">Catégorie</span>
+            <select
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="min-w-0 flex-1 cursor-pointer bg-transparent py-2 text-sm text-foreground outline-none"
+            >
+              <option value={ALL_CATEGORIES} className="bg-background">Toutes les catégories</option>
+              {serviceCategories.map((c) => (
+                <option key={c} value={c} className="bg-background">{c}</option>
+              ))}
+            </select>
+          </label>
+          <label className="flex items-center gap-1.5 border-t border-border px-3 pl-4 text-sm text-muted-foreground sm:border-l sm:border-t-0 sm:pl-3">
+            <MapPin className="h-4 w-4 shrink-0" />
+            <span className="sr-only">Ville</span>
             <select
               value={city}
               onChange={(e) => setCity(e.target.value)}
-              className="bg-transparent outline-none text-sm text-foreground py-2"
+              className="min-w-0 flex-1 cursor-pointer bg-transparent py-2 text-sm text-foreground outline-none"
             >
               {cities.map((c) => (
                 <option key={c} value={c} className="bg-background">{c}</option>
               ))}
             </select>
-          </div>
-        </div>
-
-        <div className="mt-4 flex gap-2 overflow-x-auto pb-2 -mx-6 px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {categories.map((c) => (
-            <button
-              key={c}
-              onClick={() => setCategory(c)}
-              className={`whitespace-nowrap rounded-xl px-4 h-9 text-sm font-medium border transition ${
-                category === c
-                  ? "bg-foreground text-background border-foreground"
-                  : "bg-surface text-muted-foreground border-border hover:text-foreground"
-              }`}
-            >
-              {c}
-            </button>
-          ))}
+          </label>
         </div>
       </section>
 
       <section className="mx-auto max-w-7xl px-6 mt-6 grid lg:grid-cols-12 gap-8 pb-24">
-        <aside className="lg:col-span-3">
+        <aside className={`${filtersOpen ? "block" : "hidden"} lg:col-span-3 lg:block`}>
           <div className="lg:sticky lg:top-24 rounded-2xl border border-border bg-surface p-6 space-y-6">
             <div className="flex items-center gap-2 text-sm font-semibold">
               <SlidersHorizontal className="h-4 w-4 text-primary" /> Filtres
@@ -174,6 +209,14 @@ function Explore() {
             >
               Réinitialiser
             </button>
+
+            <button
+              type="button"
+              onClick={() => setFiltersOpen(false)}
+              className="h-11 w-full rounded-xl bg-primary text-sm font-semibold text-primary-foreground transition hover:opacity-90 lg:hidden"
+            >
+              Voir {results.length} résultat{results.length > 1 ? "s" : ""}
+            </button>
           </div>
         </aside>
 
@@ -184,7 +227,7 @@ function Explore() {
           {results.length === 0 ? (
             <div className="rounded-2xl border border-border bg-surface p-12 text-center">
               <div className="text-display text-2xl">Aucun créateur trouvé</div>
-              <p className="mt-2 text-sm text-muted-foreground">Élargissez votre budget ou changez de ville.</p>
+              <p className="mt-2 text-sm text-muted-foreground">Élargissez votre budget, changez de ville ou de catégorie.</p>
               <button onClick={reset} className="mt-6 h-10 px-5 rounded-xl bg-primary text-primary-foreground text-sm font-semibold">
                 Réinitialiser les filtres
               </button>

@@ -5,7 +5,7 @@ import { useState } from "react";
 import { CreatorCard } from "@/components/CreatorCard";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-import { categories, creators } from "@/lib/creators";
+import { ALL_CATEGORIES, categories, creators } from "@/lib/creators";
 import { useSaved } from "@/lib/store";
 
 import heroImg1 from "@/assets/hero-1.jpg";
@@ -160,9 +160,9 @@ function Index() {
             <Link
               key={c}
               to="/explore"
-              search={c === "For You" ? {} : { category: c }}
+              search={c === ALL_CATEGORIES ? {} : { category: c }}
               className={`whitespace-nowrap rounded-xl px-4 h-9 text-sm font-medium border transition flex items-center ${
-                c === "For You"
+                c === ALL_CATEGORIES
                   ? "bg-foreground text-background border-foreground"
                   : "bg-surface text-muted-foreground border-border hover:text-foreground"
               }`}

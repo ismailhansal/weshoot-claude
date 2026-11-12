@@ -5,7 +5,7 @@ import { useEffect, useState } from "react";
 import { SiteFooter } from "@/components/SiteFooter";
 import { SiteHeader } from "@/components/SiteHeader";
 import { getSafeBookingReturnPath } from "@/lib/booking-rules";
-import { getDemoProfile, startDemoSession, useDemoSession } from "@/lib/demo-auth";
+import { DEMO_CREATOR_EMAIL, getDemoProfile, getRoleForEmail, startDemoSession, useDemoSession } from "@/lib/demo-auth";
 
 export const Route = createFileRoute("/login")({
   validateSearch: (search: Record<string, unknown>): { redirect?: string } => ({
@@ -36,6 +36,11 @@ function Login() {
 
   // Reprend la réservation interrompue (chemin validé), sinon retourne à l'exploration.
   function resume() {
+    // Compte prestataire : redirection directe vers son espace
+    if (session.isAuthenticated && session.role === "creator") {
+      navigate({ to: "/creator-dashboard", replace: true });
+      return;
+    }
     const path = getSafeBookingReturnPath(redirect);
     const match = path.match(/^\/book\/([A-Za-z0-9_-]+)(?:\?offer=([A-Za-z0-9_-]+))?$/);
     if (match) {
@@ -68,7 +73,12 @@ function Login() {
     setError("");
     // Retrouve prénom et avatar déjà connus pour cet email (inscription précédente), sinon déduit de l'email.
     const profile = getDemoProfile(email);
-    startDemoSession(email, profile?.name, profile?.avatar);
+    const role = getRoleForEmail(email);
+    startDemoSession(email, profile?.name ?? (role === "creator" ? "Amine" : undefined), profile?.avatar, role);
+    if (role === "creator") {
+      navigate({ to: "/creator-dashboard", replace: true });
+      return;
+    }
     resume();
   }
 
@@ -127,7 +137,14 @@ function Login() {
               Se connecter <ArrowRight className="h-4 w-4" />
             </button>
             <p className="flex items-center gap-2 border-t border-white/10 pt-4 text-xs text-muted-foreground">
-              <Lock className="h-3.5 w-3.5 text-primary" /> Mode démo : aucun compte réel n'est créé.
+              <Lock className="h-3.5 w-3.5 shrink-0 text-primary" /> Mode démo : aucun compte réel n'est créé.
+            </p>
+            <p className="-mt-2 text-xs text-muted-foreground">
+              Compte démo prestataire :{" "}
+              <button type="button" onClick={() => setEmail(DEMO_CREATOR_EMAIL)} className="cursor-pointer font-medium text-foreground underline-offset-4 hover:text-primary hover:underline">
+                {DEMO_CREATOR_EMAIL}
+              </button>{" "}
+              (mot de passe libre)
             </p>
           </form>
 

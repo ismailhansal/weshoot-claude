@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 import { BriefDialog, QuoteDialog } from "@/components/ClientOrderDialogs";
 import { DeliverablesTab } from "@/components/DeliverablesTab";
@@ -43,6 +43,11 @@ function Dashboard() {
   const navigate = useNavigate();
   const session = useDemoSession();
   const space = useClientSpace();
+
+  // Un prestataire connecté n'a pas d'espace client : on l'envoie vers son dashboard.
+  useEffect(() => {
+    if (session.ready && session.isAuthenticated && session.role === "creator") navigate({ to: "/creator-dashboard", replace: true });
+  }, [session.ready, session.isAuthenticated, session.role, navigate]);
 
   const [quoteId, setQuoteId] = useState<string | null>(null);
   const [briefId, setBriefId] = useState<string | null>(null);

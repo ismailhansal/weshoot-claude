@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { Heart, CalendarCheck, LayoutDashboard, LogOut, Menu, MessageSquare, X } from "lucide-react";
+import { Heart, CalendarCheck, LayoutDashboard, LogOut, Menu, MessageSquare } from "lucide-react";
 import { useState } from "react";
 
 import {
@@ -15,7 +15,9 @@ import avatar3 from "@/assets/avatar-3.jpg";
 import avatar4 from "@/assets/avatar-4.jpg";
 import avatar5 from "@/assets/avatar-5.jpg";
 import avatar6 from "@/assets/avatar-6.jpg";
+import { MobileNav } from "@/components/MobileNav";
 import { useClientSpace } from "@/lib/client-space";
+import { pendingRequestCount, useCreatorSpace } from "@/lib/creator-space";
 import { endDemoSession, getDisplayName, useDemoSession } from "@/lib/demo-auth";
 import { useSaved, useBookings } from "@/lib/store";
 
@@ -49,8 +51,11 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const session = useDemoSession();
   const space = useClientSpace();
-  const firstName = getDisplayName(session.email, session.name);
-  const avatarSrc = session.avatar ?? defaultAvatarFor(session.email);
+  const isCreator = session.isAuthenticated && session.role === "creator";
+  const creator = useCreatorSpace(isCreator);
+  const firstName = isCreator && creator.state ? creator.state.profile.displayName : getDisplayName(session.email, session.name);
+  const avatarSrc = (isCreator && creator.state?.profile.avatar) || session.avatar || defaultAvatarFor(session.email);
+  const creatorPending = creator.state ? pendingRequestCount(creator.state) : 0;
   const activeBookings = bookings.filter((b) => b.status === "confirmed").length;
 
   return (
@@ -75,10 +80,12 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
+          {!isCreator && (
+            <>
           <Link
             to="/saved"
             aria-label="Favoris"
-            className="relative h-9 w-9 rounded-xl border border-border grid place-items-center hover:bg-surface transition"
+            className="relative hidden md:grid h-9 w-9 rounded-xl border border-border place-items-center hover:bg-surface transition"
           >
             <Heart className="h-4 w-4" />
             {saved.length > 0 && (
@@ -90,7 +97,7 @@ export function SiteHeader() {
           <Link
             to="/bookings"
             aria-label="Mes réservations"
-            className="relative h-9 w-9 rounded-xl border border-border grid place-items-center hover:bg-surface transition"
+            className="relative hidden md:grid h-9 w-9 rounded-xl border border-border place-items-center hover:bg-surface transition"
           >
             <CalendarCheck className="h-4 w-4" />
             {activeBookings > 0 && (
@@ -99,17 +106,19 @@ export function SiteHeader() {
               </span>
             )}
           </Link>
+            </>
+          )}
           {session.ready && !session.isAuthenticated && (
             <>
               <Link
                 to="/login"
-                className="hidden sm:inline-flex h-9 items-center justify-center whitespace-nowrap rounded-full bg-white px-4 text-sm font-medium text-black transition hover:bg-primary hover:text-primary-foreground"
+                className="hidden md:inline-flex h-9 items-center justify-center whitespace-nowrap rounded-full bg-white px-4 text-sm font-medium text-black transition hover:bg-primary hover:text-primary-foreground"
               >
                 Connexion
               </Link>
               <Link
                 to="/signup"
-                className="hidden sm:inline-flex h-9 items-center justify-center whitespace-nowrap rounded-full border border-white/15 bg-white/10 px-4 text-sm font-medium text-white backdrop-blur-md transition hover:border-primary hover:bg-primary hover:text-primary-foreground"
+                className="hidden md:inline-flex h-9 items-center justify-center whitespace-nowrap rounded-full border border-white/15 bg-white/10 px-4 text-sm font-medium text-white backdrop-blur-md transition hover:border-primary hover:bg-primary hover:text-primary-foreground"
               >
                 Inscription
               </Link>
@@ -119,11 +128,11 @@ export function SiteHeader() {
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="cursor-pointer hidden sm:inline-flex h-11 items-center gap-2.5 rounded-full border border-white/70 bg-black/30 pl-1.5 pr-4 text-sm font-semibold text-white backdrop-blur-xl transition hover:border-white data-[state=open]:border-white outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
+                  className="cursor-pointer hidden md:inline-flex h-11 items-center gap-2.5 rounded-full border border-white/70 bg-black/30 pl-1.5 pr-4 text-sm font-semibold text-white backdrop-blur-xl transition hover:border-white data-[state=open]:border-white outline-none focus-visible:ring-2 focus-visible:ring-primary/40"
                 >
                   <UserAvatar src={avatarSrc} />
                   {firstName}
-                  {(space.unreadCount > 0 || space.actionCount > 0) && <span aria-hidden className="h-2 w-2 rounded-full bg-primary" />}
+                  {(isCreator ? creatorPending > 0 : space.unreadCount > 0 || space.actionCount > 0) && <span aria-hidden className="h-2 w-2 rounded-full bg-primary" />}
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent
@@ -136,6 +145,20 @@ export function SiteHeader() {
                   <div className="min-w-0 truncate text-sm font-semibold">{firstName}</div>
                 </div>
                 <DropdownMenuSeparator className="bg-white/10" />
+                {isCreator && (
+                  <DropdownMenuItem asChild className={menuItemClass}>
+                    <Link to="/creator-dashboard" className="flex items-center gap-2.5">
+                      <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
+                      <span className="flex-1">Espace prestataire</span>
+                      {creatorPending > 0 && (
+                        <span className="grid h-5 min-w-5 place-items-center rounded-md bg-primary px-1.5 text-[11px] font-bold text-primary-foreground">
+                          {creatorPending}
+                        </span>
+                      )}
+                    </Link>
+                  </DropdownMenuItem>
+                )}
+                {!isCreator && (<>
                 <DropdownMenuItem asChild className={menuItemClass}>
                   <Link to="/dashboard" className="flex items-center gap-2.5">
                     <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
@@ -180,6 +203,7 @@ export function SiteHeader() {
                     )}
                   </Link>
                 </DropdownMenuItem>
+                </>)}
                 <DropdownMenuSeparator className="bg-white/10" />
                 <DropdownMenuItem onSelect={() => endDemoSession()} className={`${menuItemClass} text-muted-foreground`}>
                   <LogOut className="h-4 w-4" /> Déconnexion
@@ -187,60 +211,56 @@ export function SiteHeader() {
               </DropdownMenuContent>
             </DropdownMenu>
           )}
-          <button
-            onClick={() => setOpen((v) => !v)}
-            aria-label="Menu"
-            className="md:hidden h-9 w-9 rounded-xl border border-border grid place-items-center"
-          >
-            {open ? <X className="h-4 w-4" /> : <Menu className="h-4 w-4" />}
-          </button>
-        </div>
-      </div>
-
-      {open && (
-        <div className="md:hidden border-t border-border bg-background/95 px-6 py-4 flex flex-col gap-3 text-sm">
-          {nav.map((n) => (
-            <Link key={n.to} to={n.to} onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground">
-              {n.label}
-            </Link>
-          ))}
-          <Link to="/bookings" onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground">
-            Mes réservations
-          </Link>
-          {session.ready && !session.isAuthenticated && (
-            <div className="mt-1 flex gap-2">
+          {/* Mobile : accès rapide + menu */}
+          <div className="flex items-center gap-2 md:hidden">
+            {session.ready && !session.isAuthenticated && (
               <Link
                 to="/login"
-                onClick={() => setOpen(false)}
-                className="flex-1 h-10 inline-flex items-center justify-center rounded-full bg-white text-black font-medium"
+                className="inline-flex h-9 items-center justify-center whitespace-nowrap rounded-full bg-white px-4 text-sm font-medium text-black transition active:scale-95"
               >
                 Connexion
               </Link>
-              <Link
-                to="/signup"
-                onClick={() => setOpen(false)}
-                className="flex-1 h-10 inline-flex items-center justify-center rounded-full border border-white/15 bg-white/10 text-white font-medium backdrop-blur-md"
+            )}
+            {session.ready && session.isAuthenticated ? (
+              <button
+                type="button"
+                onClick={() => setOpen(true)}
+                aria-label="Ouvrir le menu"
+                className="cursor-pointer relative inline-flex h-10 items-center gap-2 rounded-full border border-white/20 bg-white/[0.07] pl-1 pr-3 backdrop-blur-xl transition active:scale-95"
               >
-                Inscription
-              </Link>
-            </div>
-          )}
-          {session.ready && session.isAuthenticated && (
-            <>
-              <Link to="/dashboard" onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground">Dashboard</Link>
-              <Link to="/messages" onClick={() => setOpen(false)} className="text-muted-foreground hover:text-foreground">Messages</Link>
-            </>
-          )}
-          {session.ready && session.isAuthenticated && (
-            <button
-              onClick={() => { endDemoSession(); setOpen(false); }}
-              className="cursor-pointer mt-1 inline-flex items-center gap-2 text-left text-muted-foreground hover:text-foreground"
-            >
-              <LogOut className="h-4 w-4" /> Se déconnecter ({firstName})
-            </button>
-          )}
+                <span className="h-8 w-8 shrink-0 rounded-full border-2 border-primary p-0.5">
+                  <img src={avatarSrc} alt="" className="h-full w-full rounded-full object-cover" />
+                </span>
+                <Menu className="h-4 w-4" />
+                {(isCreator ? creatorPending > 0 : space.unreadCount > 0 || space.actionCount > 0) && (
+                  <span aria-hidden className="absolute -right-0.5 -top-0.5 h-2.5 w-2.5 rounded-full border-2 border-background bg-primary" />
+                )}
+              </button>
+            ) : (
+              <button
+                type="button"
+                onClick={() => setOpen(true)}
+                aria-label="Ouvrir le menu"
+                className="cursor-pointer grid h-10 w-10 place-items-center rounded-xl border border-white/15 bg-white/[0.07] backdrop-blur-xl transition active:scale-95"
+              >
+                <Menu className="h-4 w-4" />
+              </button>
+            )}
+          </div>
         </div>
-      )}
+      </div>
+
+      <MobileNav
+        open={open}
+        onOpenChange={setOpen}
+        ready={session.ready}
+        authed={session.isAuthenticated}
+        isCreator={isCreator}
+        firstName={firstName}
+        avatarSrc={avatarSrc}
+        counts={{ actions: space.actionCount, unread: space.unreadCount, bookings: activeBookings, saved: saved.length, creatorPending }}
+        onLogout={endDemoSession}
+      />
     </header>
   );
 }

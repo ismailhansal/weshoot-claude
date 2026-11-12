@@ -90,8 +90,8 @@ export const creators: Creator[] = [
     years: 6,
     responseTime: "~2h",
     shoots: 320,
-    tags: ["Editorial", "Fashion", "Portrait"],
-    categories: ["Editorial", "Brand"],
+    tags: ["Éditorial", "Mode", "Portrait"],
+    categories: ["Mode", "Portrait", "Corporate"],
     cover: portfolio1,
     avatar: avatar1,
     bio: "Photographe éditoriale basée à Casablanca, je collabore avec des marques de mode et des magazines depuis plus de six ans. Mon travail explore la lumière naturelle, les portraits intimes et les mises en scène cinématiques.",
@@ -129,8 +129,8 @@ export const creators: Creator[] = [
     years: 8,
     responseTime: "~4h",
     shoots: 210,
-    tags: ["Music Video", "Cinematic", "Brand"],
-    categories: ["Music Video", "Brand", "Documentary"],
+    tags: ["Clip", "Cinématique", "Marque"],
+    categories: ["Concert", "Corporate", "Événement"],
     cover: portfolio2,
     avatar: avatar2,
     bio: "Réalisateur et chef opérateur à Marrakech. Je tourne des clips musicaux et des films de marque à l'esthétique brute, contrastée, tournés en anamorphique.",
@@ -167,8 +167,8 @@ export const creators: Creator[] = [
     years: 9,
     responseTime: "~1h",
     shoots: 480,
-    tags: ["Wedding", "Couples", "Outdoor"],
-    categories: ["Wedding"],
+    tags: ["Couple", "Extérieur", "Naturel"],
+    categories: ["Mariage", "Événement", "Famille"],
     cover: portfolio3,
     avatar: avatar3,
     bio: "Spécialisée mariage et couples, je photographie en lumière naturelle avec une approche documentaire, discrète et sensible.",
@@ -205,8 +205,8 @@ export const creators: Creator[] = [
     years: 7,
     responseTime: "~3h",
     shoots: 290,
-    tags: ["Street", "Neon", "Fashion"],
-    categories: ["Street", "Editorial"],
+    tags: ["Street", "Néon", "Urbain"],
+    categories: ["Mode", "Influenceur", "Réseaux Sociaux"],
     cover: portfolio4,
     avatar: avatar4,
     bio: "Photographe et vidéaste à Tanger. Je travaille les lumières de la nuit urbaine et la mode de rue, en photo comme en vidéo.",
@@ -243,8 +243,8 @@ export const creators: Creator[] = [
     years: 10,
     responseTime: "~6h",
     shoots: 140,
-    tags: ["Cinematic", "Documentary"],
-    categories: ["Documentary", "Brand"],
+    tags: ["Cinématique", "Documentaire"],
+    categories: ["Corporate", "Hôtel/Tourisme", "Événement"],
     cover: portfolio5,
     avatar: avatar5,
     bio: "Documentariste basée à Agadir. Je raconte des histoires humaines, du repérage au montage final, avec une équipe légère.",
@@ -281,8 +281,8 @@ export const creators: Creator[] = [
     years: 5,
     responseTime: "~2h",
     shoots: 260,
-    tags: ["Product", "Studio", "Brand"],
-    categories: ["Product", "Brand"],
+    tags: ["Studio", "Minimaliste", "Marque"],
+    categories: ["Packshot Produit", "Food", "Restauration"],
     cover: portfolio6,
     avatar: avatar6,
     bio: "Photographe produit et studio à Fès. Lumière millimétrée, packshots e-commerce et natures mortes pour marques premium.",
@@ -308,7 +308,19 @@ export const creators: Creator[] = [
   },
 ];
 
-export const categories = ["For You", "Editorial", "Wedding", "Brand", "Music Video", "Product", "Street", "Documentary"];
+/** Valeur « aucun filtre » du sélecteur de catégorie. */
+export const ALL_CATEGORIES = "Toutes";
+
+/** Catégories de prestation (mêmes que l'inscription et le profil des créateurs). */
+export const serviceCategories = [
+  "Mariage", "Événement", "Corporate", "Portrait", "Famille", "Mode",
+  "Food", "Restauration", "Immobilier", "Architecture", "Hôtel/Tourisme", "Automobile",
+  "Packshot Produit", "Naissance", "Baby Shower", "Anniversaire", "Gender Reveal", "Baptême",
+  "Concert", "Influenceur", "Réseaux Sociaux", "Autre",
+];
+
+/** Raccourcis affichés sur l'accueil. */
+export const categories = [ALL_CATEGORIES, "Mariage", "Événement", "Portrait", "Corporate", "Mode", "Food", "Concert"];
 
 export const cities = ["Toutes les villes", ...Array.from(new Set(creators.map((c) => c.city)))];
 

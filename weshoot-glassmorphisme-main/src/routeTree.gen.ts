@@ -12,6 +12,7 @@ import { Route as rootRouteImport } from './routes/__root'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as BecomeCreatorRouteImport } from './routes/become-creator'
 import { Route as BookingsRouteImport } from './routes/bookings'
+import { Route as CreatorDashboardRouteImport } from './routes/creator-dashboard'
 import { Route as DashboardRouteImport } from './routes/dashboard'
 import { Route as ExploreRouteImport } from './routes/explore'
 import { Route as ForCreatorsRouteImport } from './routes/for-creators'
@@ -36,6 +37,11 @@ const BecomeCreatorRoute = BecomeCreatorRouteImport.update({
 const BookingsRoute = BookingsRouteImport.update({
   id: '/bookings',
   path: '/bookings',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const CreatorDashboardRoute = CreatorDashboardRouteImport.update({
+  id: '/creator-dashboard',
+  path: '/creator-dashboard',
   getParentRoute: () => rootRouteImport,
 } as any)
 const DashboardRoute = DashboardRouteImport.update({
@@ -93,6 +99,7 @@ export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/become-creator': typeof BecomeCreatorRoute
   '/bookings': typeof BookingsRoute
+  '/creator-dashboard': typeof CreatorDashboardRoute
   '/dashboard': typeof DashboardRoute
   '/explore': typeof ExploreRoute
   '/for-creators': typeof ForCreatorsRoute
@@ -108,6 +115,7 @@ export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/become-creator': typeof BecomeCreatorRoute
   '/bookings': typeof BookingsRoute
+  '/creator-dashboard': typeof CreatorDashboardRoute
   '/dashboard': typeof DashboardRoute
   '/explore': typeof ExploreRoute
   '/for-creators': typeof ForCreatorsRoute
@@ -124,6 +132,7 @@ export interface FileRoutesById {
   '/': typeof IndexRoute
   '/become-creator': typeof BecomeCreatorRoute
   '/bookings': typeof BookingsRoute
+  '/creator-dashboard': typeof CreatorDashboardRoute
   '/dashboard': typeof DashboardRoute
   '/explore': typeof ExploreRoute
   '/for-creators': typeof ForCreatorsRoute
@@ -141,6 +150,7 @@ export interface FileRouteTypes {
     | '/'
     | '/become-creator'
     | '/bookings'
+    | '/creator-dashboard'
     | '/dashboard'
     | '/explore'
     | '/for-creators'
@@ -156,6 +166,7 @@ export interface FileRouteTypes {
     | '/'
     | '/become-creator'
     | '/bookings'
+    | '/creator-dashboard'
     | '/dashboard'
     | '/explore'
     | '/for-creators'
@@ -171,6 +182,7 @@ export interface FileRouteTypes {
     | '/'
     | '/become-creator'
     | '/bookings'
+    | '/creator-dashboard'
     | '/dashboard'
     | '/explore'
     | '/for-creators'
@@ -187,6 +199,7 @@ export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   BecomeCreatorRoute: typeof BecomeCreatorRoute
   BookingsRoute: typeof BookingsRoute
+  CreatorDashboardRoute: typeof CreatorDashboardRoute
   DashboardRoute: typeof DashboardRoute
   ExploreRoute: typeof ExploreRoute
   ForCreatorsRoute: typeof ForCreatorsRoute
@@ -220,6 +233,13 @@ declare module '@tanstack/react-router' {
       path: '/bookings'
       fullPath: '/bookings'
       preLoaderRoute: typeof BookingsRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/creator-dashboard': {
+      id: '/creator-dashboard'
+      path: '/creator-dashboard'
+      fullPath: '/creator-dashboard'
+      preLoaderRoute: typeof CreatorDashboardRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/dashboard': {
@@ -299,6 +319,7 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   BecomeCreatorRoute: BecomeCreatorRoute,
   BookingsRoute: BookingsRoute,
+  CreatorDashboardRoute: CreatorDashboardRoute,
   DashboardRoute: DashboardRoute,
   ExploreRoute: ExploreRoute,
   ForCreatorsRoute: ForCreatorsRoute,
