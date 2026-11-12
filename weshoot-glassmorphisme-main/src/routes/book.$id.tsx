@@ -289,14 +289,30 @@ function BookingFlow() {
       {Backdrop}
       <div className="relative z-10">
         <SiteHeader />
-        <main className="mx-auto max-w-6xl px-5 pb-24 pt-8 md:px-6">
-          <Link to="/creator/$id" params={{ id: creator.id }} className="inline-flex items-center gap-2 text-sm text-muted-foreground transition hover:text-foreground">
-            <ArrowLeft className="h-4 w-4" /> Retour au profil
+        <main className="mx-auto max-w-6xl px-5 pb-6 pt-4 sm:pb-24 sm:pt-8 md:px-6">
+          <Link to="/creator/$id" params={{ id: creator.id }} className="inline-flex items-center gap-1.5 text-xs text-muted-foreground transition hover:text-foreground sm:gap-2 sm:text-sm">
+            <ArrowLeft className="h-3.5 w-3.5 sm:h-4 sm:w-4" /> Retour<span className="hidden sm:inline">&nbsp;au profil</span>
           </Link>
 
-          <div className="mt-6 grid gap-8 lg:grid-cols-12">
-            {/* Prestataire — visible pendant tout le parcours */}
-            <aside className="lg:order-last lg:col-span-4">
+          {/* Mobile / tablette : prestataire résumé en une ligne */}
+          <div className="glass mt-3 flex items-center gap-3 rounded-2xl p-2.5 lg:hidden">
+            <img src={creator.avatar} alt={creator.name} className="h-11 w-11 shrink-0 rounded-xl object-cover ring-2 ring-primary/80" />
+            <div className="min-w-0 flex-1">
+              <p className="truncate text-sm font-semibold leading-tight">{creator.name}</p>
+              <p className="mt-0.5 flex items-center gap-1.5 truncate text-[11px] text-muted-foreground">
+                <MapPin className="h-3 w-3 shrink-0 text-primary" />{creator.city}
+                <span aria-hidden>·</span><ServiceIcon className="h-3 w-3 shrink-0" />{serviceLabel}
+                <span aria-hidden>·</span>{creator.radiusKm} km
+              </p>
+            </div>
+            <span className="inline-flex shrink-0 items-center gap-1 rounded-lg border border-white/10 bg-white/[0.06] px-2 py-1 text-xs font-medium">
+              <Star className="h-3 w-3 fill-primary text-primary" />{creator.rating}
+            </span>
+          </div>
+
+          <div className="mt-4 grid gap-8 sm:mt-6 lg:grid-cols-12">
+            {/* Prestataire — visible pendant tout le parcours (desktop) */}
+            <aside className="hidden lg:order-last lg:col-span-4 lg:block">
               <div className="space-y-4 lg:sticky lg:top-24">
                 <div className="glass-strong overflow-hidden rounded-3xl">
                   <div className="relative h-32 lg:h-40">
@@ -335,8 +351,20 @@ function BookingFlow() {
             </aside>
 
             <div className="lg:col-span-8">
-              {/* Progression */}
-              <ol className="glass flex items-center gap-1 rounded-2xl p-1.5" aria-label="Progression">
+              {/* Progression — mobile : barre segmentée */}
+              <div className="sm:hidden" role="progressbar" aria-valuemin={1} aria-valuemax={steps.length} aria-valuenow={stepIndex + 1} aria-label="Progression">
+                <div className="flex gap-1.5">
+                  {steps.map((label, index) => (
+                    <span key={label} className={`h-1 flex-1 rounded-full transition-colors ${index <= stepIndex ? "bg-primary" : "bg-white/10"}`} />
+                  ))}
+                </div>
+                <p className="mt-2 text-xs text-muted-foreground">
+                  Étape {stepIndex + 1}/{steps.length} — <span className="font-medium text-foreground">{stepTitles[step]}</span>
+                </p>
+              </div>
+
+              {/* Progression — à partir de sm */}
+              <ol className="glass hidden items-center gap-1 rounded-2xl p-1.5 sm:flex" aria-label="Progression">
                 {steps.map((label, index) => {
                   const done = index < stepIndex;
                   const active = index === stepIndex;
@@ -351,40 +379,40 @@ function BookingFlow() {
                 })}
               </ol>
 
-              <div className="mt-8">
-                <div className="inline-flex items-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-3 py-1.5 text-xs uppercase tracking-[0.18em] text-muted-foreground backdrop-blur">
+              <div className="mt-4 sm:mt-8">
+                <div className="hidden items-center gap-2 rounded-xl border border-white/10 bg-white/[0.05] px-3 py-1.5 text-xs uppercase tracking-[0.18em] text-muted-foreground backdrop-blur sm:inline-flex">
                   <span className="h-1.5 w-1.5 rounded-sm bg-primary" />
                   Étape {stepIndex + 1}/{steps.length}
                 </div>
-                <h1 className="text-display mt-4 text-3xl leading-[1.05] md:text-5xl">{stepCopy[step].title}</h1>
-                <p className="mt-3 max-w-xl text-muted-foreground">{stepCopy[step].text}</p>
+                <h1 className="text-display text-[1.65rem] leading-[1.05] sm:mt-4 sm:text-3xl md:text-5xl">{stepCopy[step].title}</h1>
+                <p className="mt-3 hidden max-w-xl text-muted-foreground sm:block">{stepCopy[step].text}</p>
               </div>
 
-              <section className="glass-strong mt-7 rounded-3xl p-5 md:p-8">
+              <section className="glass-strong mt-3 rounded-3xl p-3.5 sm:mt-7 sm:p-5 md:p-8">
                 {step === "choice" && (
-                  <div className="space-y-6">
-                    <div className="grid gap-4 sm:grid-cols-2">
+                  <div className="space-y-4 sm:space-y-6">
+                    <div className="grid gap-2.5 sm:grid-cols-2 sm:gap-4">
                       {([
                         { key: "offer", opt: "Option A", title: "Choisir une offre", text: "Sélectionne un pack pré-défini par le prestataire." },
                         { key: "project", opt: "Option B", title: "Décrire mon projet", text: "Demande un devis personnalisé." },
                       ] as const).map(({ key, opt, title, text }) => (
-                        <button key={key} type="button" aria-pressed={mode === key} onClick={() => chooseMode(key)} className={`${tileBase} flex min-h-[10.5rem] flex-col justify-start p-6 ${mode === key ? tileOn : tileIdle}`}>
+                        <button key={key} type="button" aria-pressed={mode === key} onClick={() => chooseMode(key)} className={`${tileBase} flex flex-col justify-start px-4 py-3.5 sm:min-h-[10.5rem] sm:p-6 ${mode === key ? tileOn : tileIdle}`}>
                           <span className="flex items-center justify-between">
-                            <span className="text-[11px] font-semibold uppercase tracking-[0.18em] text-primary">{opt}</span>
+                            <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary sm:text-[11px]">{opt}</span>
                             <Radio on={mode === key} />
                           </span>
-                          <span className="text-display mt-8 block text-2xl">{title}</span>
-                          <span className="mt-1.5 block text-sm text-muted-foreground">{text}</span>
+                          <span className="text-display mt-1 block text-lg sm:mt-8 sm:text-2xl">{title}</span>
+                          <span className="mt-0.5 block text-xs text-muted-foreground sm:mt-1.5 sm:text-sm">{text}</span>
                         </button>
                       ))}
                     </div>
 
                     {mode === "offer" && (
-                      <div className="border-t border-white/10 pt-6">
-                        <span className={labelClass}>Choisis un pack</span>
-                        <div className="space-y-3">
+                      <div className="border-t border-white/10 pt-4 sm:pt-6">
+                        <span className={`${labelClass} !mb-2.5`}>Choisis un pack</span>
+                        <div className="space-y-2.5 sm:space-y-3">
                           {creator.offers.map((offer) => (
-                            <button key={offer.id} type="button" aria-pressed={offerId === offer.id} onClick={() => setOfferId(offer.id)} className={`${tileBase} flex w-full items-center gap-4 p-4 ${offerId === offer.id ? tileOn : tileIdle}`}>
+                            <button key={offer.id} type="button" aria-pressed={offerId === offer.id} onClick={() => setOfferId(offer.id)} className={`${tileBase} flex w-full items-center gap-3 p-3 sm:gap-4 sm:p-4 ${offerId === offer.id ? tileOn : tileIdle}`}>
                               <Radio on={offerId === offer.id} />
                               <span className="min-w-0 flex-1">
                                 <span className="flex flex-wrap items-center gap-2">
@@ -393,7 +421,7 @@ function BookingFlow() {
                                 </span>
                                 <span className="mt-0.5 block text-xs text-muted-foreground">{offer.duration}</span>
                               </span>
-                              <span className="text-display shrink-0 text-2xl">{offer.price} MAD</span>
+                              <span className="text-display shrink-0 text-xl sm:text-2xl">{offer.price} MAD</span>
                             </button>
                           ))}
                         </div>
@@ -401,12 +429,12 @@ function BookingFlow() {
                     )}
 
                     {mode === "project" && (
-                      <div className="space-y-5 border-t border-white/10 pt-6">
+                      <div className="space-y-4 border-t border-white/10 pt-4 sm:space-y-5 sm:pt-6">
                         <div>
                           <label htmlFor="project-description" className={labelClass}>
                             Décris ton projet <span className="normal-case tracking-normal">· {description.length}/{PROJECT_DESCRIPTION_MAX}</span>
                           </label>
-                          <textarea id="project-description" maxLength={PROJECT_DESCRIPTION_MAX} value={description} onChange={(event) => setDescription(event.target.value)} rows={5} placeholder="Ton idée, l'ambiance recherchée, les contraintes…" className={`${fieldClass} h-auto resize-y py-3`} />
+                          <textarea id="project-description" maxLength={PROJECT_DESCRIPTION_MAX} value={description} onChange={(event) => setDescription(event.target.value)} rows={4} placeholder="Ton idée, l'ambiance recherchée, les contraintes…" className={`${fieldClass} h-auto resize-y py-3`} />
                         </div>
                         <div>
                           <label htmlFor="project-budget" className={labelClass}>Budget maximum (MAD) (optionnel)</label>
@@ -590,16 +618,17 @@ function BookingFlow() {
                 )}
               </section>
 
-              <div className="mt-6 flex items-center justify-between gap-3">
-                <button type="button" onClick={() => setStepIndex((current) => Math.max(0, current - 1))} disabled={stepIndex === 0} className="glass inline-flex h-12 items-center gap-2 rounded-xl px-4 text-sm font-medium transition hover:border-primary/60 disabled:opacity-30 sm:px-5" aria-label="Précédent">
+              {/* Mobile : barre d'actions collée en bas pour ne plus avoir à scroller jusqu'au bouton */}
+              <div className="sticky bottom-0 z-30 -mx-5 mt-2 flex items-center justify-between gap-3 bg-gradient-to-t from-background from-65% to-transparent px-5 pb-3 pt-6 sm:static sm:mx-0 sm:mt-6 sm:bg-none sm:p-0">
+                <button type="button" onClick={() => setStepIndex((current) => Math.max(0, current - 1))} disabled={stepIndex === 0} className={`glass inline-flex h-11 items-center gap-2 rounded-xl px-4 text-sm font-medium transition hover:border-primary/60 disabled:opacity-30 sm:h-12 sm:px-5 ${stepIndex === 0 ? "max-sm:hidden" : ""}`} aria-label="Précédent">
                   <ArrowLeft className="h-4 w-4" /> <span className="hidden sm:inline">Précédent</span>
                 </button>
                 {step === "summary" ? (
-                  <button type="button" onClick={sendRequest} className="inline-flex h-12 items-center gap-2 whitespace-nowrap rounded-xl bg-gradient-accent px-5 text-sm font-semibold text-primary-foreground shadow-glow transition hover:scale-[1.02]">
+                  <button type="button" onClick={sendRequest} className="inline-flex h-11 flex-1 items-center justify-center gap-2 whitespace-nowrap rounded-xl bg-gradient-accent px-5 text-sm font-semibold sm:h-12 sm:flex-none text-primary-foreground shadow-glow transition hover:scale-[1.02]">
                     <Send className="h-4 w-4" /> Envoyer au prestataire
                   </button>
                 ) : (
-                  <button type="button" onClick={() => canContinue && setStepIndex((current) => Math.min(steps.length - 1, current + 1))} disabled={!canContinue} className="inline-flex h-12 items-center gap-2 rounded-xl bg-primary px-7 text-sm font-semibold text-primary-foreground shadow-glow transition hover:opacity-90 disabled:opacity-40 disabled:shadow-none">
+                  <button type="button" onClick={() => canContinue && setStepIndex((current) => Math.min(steps.length - 1, current + 1))} disabled={!canContinue} className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-7 text-sm font-semibold sm:h-12 sm:flex-none text-primary-foreground shadow-glow transition hover:opacity-90 disabled:bg-white/[0.08] disabled:text-muted-foreground disabled:shadow-none sm:disabled:bg-primary sm:disabled:text-primary-foreground sm:disabled:opacity-40">
                     Suivant <ArrowRight className="h-4 w-4" />
                   </button>
                 )}
