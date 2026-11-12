@@ -398,7 +398,7 @@ function CreatorProfile() {
           <Link
             to="/book/$id"
             params={{ id: c.id }}
-            className="flex-1 h-12 rounded-xl bg-primary text-primary-foreground font-semibold hover:opacity-90 transition inline-flex items-center justify-center"
+            className="flex-1 h-12 rounded-xl bg-primary  font-semibold hover:opacity-90 transition inline-flex items-center justify-center"
           >
             Réserver
           </Link>
