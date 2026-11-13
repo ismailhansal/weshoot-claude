@@ -125,10 +125,10 @@ function BookingFlow() {
     }
   }, [session.ready, session.isAuthenticated, id, offerParam, navigate]);
 
-  // À chaque changement d'étape (Suivant / Précédent), on remonte en haut de page.
+  // À chaque changement d'étape (Suivant / Précédent) ou à l'affichage de la confirmation, on remonte en haut de page.
   useEffect(() => {
     window.scrollTo({ top: 0, left: 0 });
-  }, [stepIndex]);
+  }, [stepIndex, reference]);
 
   if (!session.ready || !session.isAuthenticated) {
     return (
