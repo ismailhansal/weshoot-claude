@@ -1,5 +1,5 @@
 import { Link, useRouterState } from "@tanstack/react-router";
-import { Heart, CalendarCheck, LayoutDashboard, LogOut, Menu, MessageSquare } from "lucide-react";
+import { Heart, LayoutDashboard, LogOut, Menu } from "lucide-react";
 import { useState } from "react";
 
 import {
@@ -15,11 +15,12 @@ import avatar3 from "@/assets/avatar-3.jpg";
 import avatar4 from "@/assets/avatar-4.jpg";
 import avatar5 from "@/assets/avatar-5.jpg";
 import avatar6 from "@/assets/avatar-6.jpg";
+import { Logo } from "@/components/Logo";
 import { MobileNav } from "@/components/MobileNav";
 import { useClientSpace } from "@/lib/client-space";
 import { pendingRequestCount, useCreatorSpace } from "@/lib/creator-space";
 import { endDemoSession, getDisplayName, useDemoSession } from "@/lib/demo-auth";
-import { useSaved, useBookings } from "@/lib/store";
+import { useSaved } from "@/lib/store";
 
 const nav = [
   { to: "/explore", label: "Découvrir" },
@@ -47,7 +48,6 @@ const menuItemClass = "cursor-pointer rounded-xl px-3 py-2.5 text-sm focus:bg-wh
 
 export function SiteHeader() {
   const { saved } = useSaved();
-  const { bookings } = useBookings();
   const [open, setOpen] = useState(false);
   const session = useDemoSession();
   const onExplore = useRouterState({ select: (st) => st.location.pathname.startsWith("/explore") });
@@ -57,14 +57,13 @@ export function SiteHeader() {
   const firstName = isCreator && creator.state ? creator.state.profile.displayName : getDisplayName(session.email, session.name);
   const avatarSrc = (isCreator && creator.state?.profile.avatar) || session.avatar || defaultAvatarFor(session.email);
   const creatorPending = creator.state ? pendingRequestCount(creator.state) : 0;
-  const activeBookings = bookings.filter((b) => b.status === "confirmed").length;
+  const dashboardBadge = space.actionCount + space.unreadCount;
 
   return (
     <header className="sticky top-0 z-40 backdrop-blur-xl bg-background/70 border-b border-border">
       <div className="mx-auto max-w-7xl px-6 h-16 flex items-center justify-between gap-4">
         <Link to="/" className="flex items-center gap-2 shrink-0">
-          <div className="h-8 w-8 rounded-lg bg-gradient-accent shadow-glow" />
-          <span className="text-display text-2xl">weshoot</span>
+          <Logo className="text-2xl" />
         </Link>
 
         <nav className="hidden md:flex items-center gap-8 text-sm text-muted-foreground">
@@ -92,18 +91,6 @@ export function SiteHeader() {
             {saved.length > 0 && (
               <span className="absolute -top-1.5 -right-1.5 min-w-4 h-4 px-1 rounded-md bg-primary text-primary-foreground text-[10px] font-bold grid place-items-center">
                 {saved.length}
-              </span>
-            )}
-          </Link>
-          <Link
-            to="/bookings"
-            aria-label="Mes réservations"
-            className="relative hidden md:grid h-9 w-9 rounded-xl border border-border place-items-center hover:bg-surface transition"
-          >
-            <CalendarCheck className="h-4 w-4" />
-            {activeBookings > 0 && (
-              <span className="absolute -top-1.5 -right-1.5 min-w-4 h-4 px-1 rounded-md bg-primary text-primary-foreground text-[10px] font-bold grid place-items-center">
-                {activeBookings}
               </span>
             )}
           </Link>
@@ -164,31 +151,9 @@ export function SiteHeader() {
                   <Link to="/dashboard" className="flex items-center gap-2.5">
                     <LayoutDashboard className="h-4 w-4 text-muted-foreground" />
                     <span className="flex-1">Dashboard</span>
-                    {space.actionCount > 0 && (
+                    {dashboardBadge > 0 && (
                       <span className="grid h-5 min-w-5 place-items-center rounded-md bg-primary px-1.5 text-[11px] font-bold text-primary-foreground">
-                        {space.actionCount}
-                      </span>
-                    )}
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className={menuItemClass}>
-                  <Link to="/messages" className="flex items-center gap-2.5">
-                    <MessageSquare className="h-4 w-4 text-muted-foreground" />
-                    <span className="flex-1">Messages</span>
-                    {space.unreadCount > 0 && (
-                      <span className="grid h-5 min-w-5 place-items-center rounded-md bg-primary px-1.5 text-[11px] font-bold text-primary-foreground">
-                        {space.unreadCount}
-                      </span>
-                    )}
-                  </Link>
-                </DropdownMenuItem>
-                <DropdownMenuItem asChild className={menuItemClass}>
-                  <Link to="/bookings" className="flex items-center gap-2.5">
-                    <CalendarCheck className="h-4 w-4 text-muted-foreground" />
-                    <span className="flex-1">Mes réservations</span>
-                    {activeBookings > 0 && (
-                      <span className="grid h-5 min-w-5 place-items-center rounded-md bg-primary px-1.5 text-[11px] font-bold text-primary-foreground">
-                        {activeBookings}
+                        {dashboardBadge}
                       </span>
                     )}
                   </Link>
@@ -268,7 +233,7 @@ export function SiteHeader() {
         isCreator={isCreator}
         firstName={firstName}
         avatarSrc={avatarSrc}
-        counts={{ actions: space.actionCount, unread: space.unreadCount, bookings: activeBookings, saved: saved.length, creatorPending }}
+        counts={{ dashboard: dashboardBadge, saved: saved.length, creatorPending }}
         onLogout={endDemoSession}
       />
     </header>

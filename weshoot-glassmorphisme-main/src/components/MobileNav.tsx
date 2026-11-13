@@ -2,23 +2,21 @@ import * as DialogPrimitive from "@radix-ui/react-dialog";
 import { Link } from "@tanstack/react-router";
 import {
   Camera,
-  CalendarCheck,
   ChevronRight,
   Compass,
   Heart,
   LayoutDashboard,
   LogOut,
-  MessageSquare,
   Sparkles,
   X,
 } from "lucide-react";
 import type { ComponentType, ReactNode } from "react";
 
+import { Logo } from "@/components/Logo";
+
 type Counts = {
-  /** Client : devis à traiter / livrables à valider */
-  actions: number;
-  unread: number;
-  bookings: number;
+  /** Client : actions à traiter + messages non lus, regroupés dans le dashboard */
+  dashboard: number;
   saved: number;
   /** Prestataire : demandes à traiter */
   creatorPending: number;
@@ -59,7 +57,7 @@ function Tile({
   onNavigate,
   wide = false,
 }: {
-  to: "/dashboard" | "/messages" | "/bookings" | "/saved" | "/creator-dashboard";
+  to: "/dashboard" | "/saved" | "/creator-dashboard";
   icon: ComponentType<{ className?: string }>;
   label: string;
   badge?: number;
@@ -100,8 +98,7 @@ export function MobileNav({ open, onOpenChange, ready, authed, isCreator, firstN
           {/* En-tête */}
           <div className="relative flex h-16 shrink-0 items-center justify-between border-b border-white/10 px-5">
             <Link to="/" onClick={close} className="flex items-center gap-2">
-              <div className="h-8 w-8 rounded-lg bg-gradient-accent shadow-glow" />
-              <span className="text-display text-2xl">weshoot</span>
+              <Logo className="text-2xl" />
             </Link>
             <DialogPrimitive.Close
               aria-label="Fermer le menu"
@@ -130,9 +127,7 @@ export function MobileNav({ open, onOpenChange, ready, authed, isCreator, firstN
                     <Tile to="/creator-dashboard" icon={LayoutDashboard} label="Espace prestataire" badge={counts.creatorPending} onNavigate={close} wide />
                   ) : (
                     <>
-                      <Tile to="/dashboard" icon={LayoutDashboard} label="Dashboard" badge={counts.actions} onNavigate={close} />
-                      <Tile to="/messages" icon={MessageSquare} label="Messages" badge={counts.unread} onNavigate={close} />
-                      <Tile to="/bookings" icon={CalendarCheck} label="Réservations" badge={counts.bookings} onNavigate={close} />
+                      <Tile to="/dashboard" icon={LayoutDashboard} label="Dashboard" badge={counts.dashboard} onNavigate={close} />
                       <Tile to="/saved" icon={Heart} label="Favoris" badge={counts.saved} onNavigate={close} />
                     </>
                   )}

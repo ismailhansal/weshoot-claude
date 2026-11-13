@@ -81,13 +81,16 @@ export function QuoteDialog({
             <div className={labelClass}>Message du prestataire</div>
             <MessageBox>{order.quote.message}</MessageBox>
           </div>
+          <p className="text-center text-xs text-muted-foreground">
+            Après acceptation, vous réglez la prestation. Le prestataire n&apos;est payé qu&apos;à la validation de vos livrables.
+          </p>
           <div className="flex gap-3">
             <button
               type="button"
               onClick={onAccept}
               className="cursor-pointer h-12 flex-[1.4] rounded-xl bg-primary px-4 text-sm font-semibold uppercase tracking-wider text-primary-foreground shadow-glow transition hover:opacity-90"
             >
-              Accepter le devis
+              Accepter et payer
             </button>
             <button
               type="button"

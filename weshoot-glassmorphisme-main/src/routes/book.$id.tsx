@@ -271,7 +271,7 @@ function BookingFlow() {
                 </div>
                 <p className="mt-8 text-sm text-muted-foreground">Référence <span className="font-mono text-foreground">{reference}</span></p>
                 <div className="mt-8 flex flex-wrap gap-3">
-                  <Link to="/bookings" className="inline-flex h-12 items-center gap-2 rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-glow transition hover:opacity-90">Suivre ma demande <ArrowRight className="h-4 w-4" /></Link>
+                  <Link to="/dashboard" search={{ tab: "reservations" }} className="inline-flex h-12 items-center gap-2 rounded-xl bg-primary px-6 text-sm font-semibold text-primary-foreground shadow-glow transition hover:opacity-90">Suivre ma demande <ArrowRight className="h-4 w-4" /></Link>
                   <Link to="/explore" className="glass inline-flex h-12 items-center rounded-xl px-6 text-sm font-semibold transition hover:border-primary/60">Continuer à explorer</Link>
                 </div>
               </div>

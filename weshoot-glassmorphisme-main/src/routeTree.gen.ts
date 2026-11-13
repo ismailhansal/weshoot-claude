@@ -23,6 +23,7 @@ import { Route as SavedRouteImport } from './routes/saved'
 import { Route as SignupRouteImport } from './routes/signup'
 import { Route as BookIdRouteImport } from './routes/book.$id'
 import { Route as CreatorIdRouteImport } from './routes/creator.$id'
+import { Route as PayOrderIdRouteImport } from './routes/pay.$orderId'
 
 const IndexRoute = IndexRouteImport.update({
   id: '/',
@@ -94,6 +95,11 @@ const CreatorIdRoute = CreatorIdRouteImport.update({
   path: '/creator/$id',
   getParentRoute: () => rootRouteImport,
 } as any)
+const PayOrderIdRoute = PayOrderIdRouteImport.update({
+  id: '/pay/$orderId',
+  path: '/pay/$orderId',
+  getParentRoute: () => rootRouteImport,
+} as any)
 
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
@@ -110,6 +116,7 @@ export interface FileRoutesByFullPath {
   '/signup': typeof SignupRoute
   '/book/$id': typeof BookIdRoute
   '/creator/$id': typeof CreatorIdRoute
+  '/pay/$orderId': typeof PayOrderIdRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -126,6 +133,7 @@ export interface FileRoutesByTo {
   '/signup': typeof SignupRoute
   '/book/$id': typeof BookIdRoute
   '/creator/$id': typeof CreatorIdRoute
+  '/pay/$orderId': typeof PayOrderIdRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -143,6 +151,7 @@ export interface FileRoutesById {
   '/signup': typeof SignupRoute
   '/book/$id': typeof BookIdRoute
   '/creator/$id': typeof CreatorIdRoute
+  '/pay/$orderId': typeof PayOrderIdRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -161,6 +170,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/book/$id'
     | '/creator/$id'
+    | '/pay/$orderId'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -177,6 +187,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/book/$id'
     | '/creator/$id'
+    | '/pay/$orderId'
   id:
     | '__root__'
     | '/'
@@ -193,6 +204,7 @@ export interface FileRouteTypes {
     | '/signup'
     | '/book/$id'
     | '/creator/$id'
+    | '/pay/$orderId'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -210,6 +222,7 @@ export interface RootRouteChildren {
   SignupRoute: typeof SignupRoute
   BookIdRoute: typeof BookIdRoute
   CreatorIdRoute: typeof CreatorIdRoute
+  PayOrderIdRoute: typeof PayOrderIdRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -312,6 +325,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CreatorIdRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/pay/$orderId': {
+      id: '/pay/$orderId'
+      path: '/pay/$orderId'
+      fullPath: '/pay/$orderId'
+      preLoaderRoute: typeof PayOrderIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
   }
 }
 
@@ -330,6 +350,7 @@ const rootRouteChildren: RootRouteChildren = {
   SignupRoute: SignupRoute,
   BookIdRoute: BookIdRoute,
   CreatorIdRoute: CreatorIdRoute,
+  PayOrderIdRoute: PayOrderIdRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
