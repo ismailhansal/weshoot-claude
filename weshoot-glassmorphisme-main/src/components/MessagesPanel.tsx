@@ -2,6 +2,8 @@ import { Link } from "@tanstack/react-router";
 import { ArrowLeft, FileText, MessageSquare, Paperclip, Send, X } from "lucide-react";
 import { useEffect, useMemo, useRef, useState } from "react";
 
+const MOBILE_QUERY = "(max-width: 767px)";
+
 import { formatDateTime, formatShortDate, type DocFile, type useClientSpace } from "@/lib/client-space";
 import { getCreator } from "@/lib/creators";
 
@@ -26,6 +28,38 @@ export function MessagesPanel({
   const [attachment, setAttachment] = useState<DocFile | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
   const threadRef = useRef<HTMLDivElement>(null);
+
+  // Mobile : une conversation ouverte passe en plein écran, comme Instagram ou WhatsApp.
+  // Le panneau suit le viewport visuel pour rester collé au clavier, sans jamais faire défiler la page.
+  const [isMobile, setIsMobile] = useState(false);
+  const [viewport, setViewport] = useState({ top: 0, height: 0 });
+  const fullscreen = isMobile && !!orderId;
+
+  useEffect(() => {
+    const mq = window.matchMedia(MOBILE_QUERY);
+    const sync = () => setIsMobile(mq.matches);
+    sync();
+    mq.addEventListener("change", sync);
+    return () => mq.removeEventListener("change", sync);
+  }, []);
+
+  useEffect(() => {
+    if (!fullscreen) return;
+    const vv = window.visualViewport;
+    const update = () => setViewport({ top: vv?.offsetTop ?? 0, height: vv?.height ?? window.innerHeight });
+    update();
+    vv?.addEventListener("resize", update);
+    vv?.addEventListener("scroll", update);
+    window.addEventListener("resize", update);
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    return () => {
+      vv?.removeEventListener("resize", update);
+      vv?.removeEventListener("scroll", update);
+      window.removeEventListener("resize", update);
+      document.body.style.overflow = previousOverflow;
+    };
+  }, [fullscreen]);
 
   // Conversations : les plus récentes d'abord, celles sans message à la fin (hors annulées)
   const conversations = useMemo(() => {
@@ -54,7 +88,7 @@ export function MessagesPanel({
   useEffect(() => {
     const el = threadRef.current;
     if (el) el.scrollTop = el.scrollHeight;
-  }, [thread.length, activeId]);
+  }, [thread.length, activeId, viewport.height]);
 
   function select(id: string | undefined) {
     setText("");
@@ -86,7 +120,14 @@ export function MessagesPanel({
   }
 
   return (
-    <div className="glass grid h-[calc(100dvh-9.5rem)] min-h-[24rem] touch-pan-x touch-pan-y overflow-hidden rounded-3xl md:h-[min(40rem,calc(100dvh-15rem))] md:min-h-[26rem] md:grid-cols-[18rem_minmax(0,1fr)]">
+    <div
+      className={
+        fullscreen
+          ? "fixed inset-x-0 z-[60] grid grid-cols-1 grid-rows-[minmax(0,1fr)] touch-pan-x touch-pan-y overflow-hidden bg-background"
+          : "glass grid h-[calc(100dvh-9.5rem)] min-h-[24rem] touch-pan-x touch-pan-y overflow-hidden rounded-3xl md:h-[min(40rem,calc(100dvh-15rem))] md:min-h-[26rem] md:grid-cols-[18rem_minmax(0,1fr)]"
+      }
+      style={fullscreen && viewport.height ? { top: viewport.top, height: viewport.height } : undefined}
+    >
       {/* Liste des conversations */}
       <aside className={`${orderId ? "hidden md:flex" : "flex"} min-h-0 flex-col overflow-y-auto border-white/10 md:border-r [scrollbar-width:none] [&::-webkit-scrollbar]:hidden`}>
         {conversations.map(({ order: o, last }) => {
