@@ -70,6 +70,17 @@ export function CreatorCard({ creator: c, featured = false }: { creator: Creator
             )}
           </>
         )}
+        {/* Mobile uniquement : petits tirets (comme la hero) pour signaler qu'on peut faire défiler les photos */}
+        {slides.length > 1 && (
+          <div aria-hidden className="pointer-events-none absolute left-1/2 top-2 z-[5] flex -translate-x-1/2 gap-1 md:hidden">
+            {slides.map((_, k) => (
+              <span
+                key={k}
+                className={`h-[3px] w-5 rounded-full transition-colors duration-300 ${k === index ? "bg-white" : "bg-white/30"}`}
+              />
+            ))}
+          </div>
+        )}
         <div className="pointer-events-none absolute inset-x-0 top-0 p-4 flex items-start justify-between">
           <span className="glass rounded-lg px-3 py-1 text-xs flex items-center gap-1.5">
             {c.role === "Videographer" ? <Video className="h-3 w-3" /> : <Camera className="h-3 w-3" />}

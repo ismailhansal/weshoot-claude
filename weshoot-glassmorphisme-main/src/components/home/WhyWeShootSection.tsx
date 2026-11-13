@@ -1,5 +1,5 @@
 import { Link } from "@tanstack/react-router";
-import { ArrowUpRight, BadgeCheck, Check, Lock, Plus, Star } from "lucide-react";
+import { ArrowUpRight, BadgeCheck, Check, ChevronDown, Lock, PackageCheck, Receipt, Star, Undo2 } from "lucide-react";
 import { useState } from "react";
 import type { ReactNode } from "react";
 
@@ -174,14 +174,16 @@ function VisualDelivery() {
   );
 }
 
-const FRAMES: { t: string; tag: string; d: string; v: ReactNode }[] = [
-  { t: "Paiement en séquestre", tag: "Fonds bloqués", d: "Votre argent est conservé par WeShoot. Le créateur n'est payé qu'une fois vos fichiers reçus.", v: <VisualEscrow /> },
-  { t: "Créateurs vérifiés", tag: "Identité + portfolio", d: "Identité et portfolio sont contrôlés avant la publication de chaque profil.", v: <VisualVerified /> },
-  { t: "Avis authentiques", tag: "Après shoot terminé", d: "Seuls les clients qui ont réservé et terminé un shoot sur WeShoot peuvent noter.", v: <VisualReviews /> },
-  { t: "Prix final, sans surprise", tag: "0 % commission", d: "Le tarif affiché est le prix final. Aucune commission, aucun frais caché côté client.", v: <VisualPrice /> },
-  { t: "Annulation sans stress", tag: "Gratuite jusqu'à 72 h", d: "Gratuite jusqu'à 72 h avant le shoot. Si le créateur annule, vous êtes intégralement remboursé.", v: <VisualCancel /> },
-  { t: "Livraison dans les délais", tag: "3 à 7 jours", d: "Le délai est indiqué sur chaque offre avant de réserver : de 3 à 7 jours après le shooting.", v: <VisualDelivery /> },
+const FRAMES: { t: string; tag: string; d: string; img: string; v: ReactNode }[] = [
+  { t: "Paiement en séquestre", tag: "Fonds bloqués", d: "Votre argent est conservé par WeShoot. Le créateur n'est payé qu'une fois vos fichiers reçus.", img: p3, v: <VisualEscrow /> },
+  { t: "Créateurs vérifiés", tag: "Identité + portfolio", d: "Identité et portfolio sont contrôlés avant la publication de chaque profil.", img: p4, v: <VisualVerified /> },
+  { t: "Avis authentiques", tag: "Après shoot terminé", d: "Seuls les clients qui ont réservé et terminé un shoot sur WeShoot peuvent noter.", img: p1, v: <VisualReviews /> },
+  { t: "Prix final, sans surprise", tag: "0 % commission", d: "Le tarif affiché est le prix final. Aucune commission, aucun frais caché côté client.", img: p6, v: <VisualPrice /> },
+  { t: "Annulation sans stress", tag: "Gratuite jusqu'à 72 h", d: "Gratuite jusqu'à 72 h avant le shoot. Si le créateur annule, vous êtes intégralement remboursé.", img: p2, v: <VisualCancel /> },
+  { t: "Livraison dans les délais", tag: "3 à 7 jours", d: "Le délai est indiqué sur chaque offre avant de réserver : de 3 à 7 jours après le shooting.", img: p5, v: <VisualDelivery /> },
 ];
+
+const ICONS = [Lock, BadgeCheck, Star, Receipt, Undo2, PackageCheck];
 
 const pad = (n: number) => String(n + 1).padStart(2, "0");
 
@@ -201,6 +203,7 @@ function Corners({ size = "h-7 w-7", inset = "left-5 right-5 top-5 bottom-5" }: 
 
 export function WhyWeShootSection() {
   const [active, setActive] = useState(0);
+  const [mo, setMo] = useState(0);
 
   return (
     <section id="pourquoi" className="relative mx-auto max-w-7xl scroll-mt-24 px-6 py-16 md:py-24">
@@ -211,7 +214,61 @@ export function WhyWeShootSection() {
         lead="Réserver un créateur ne devrait jamais être un pari. Six engagements, du paiement à la livraison."
       />
 
-      <div className="mt-10 grid gap-10 md:mt-14 lg:grid-cols-12 lg:gap-16">
+      <div className="mt-10 grid grid-cols-1 gap-10 md:mt-14 lg:grid-cols-12 lg:gap-16">
+
+        {/* Mobile : accordéon compact (vignette + texte court), un seul ouvert, la page bouge à peine */}
+        <Reveal className="min-w-0 lg:hidden">
+          <ul className="space-y-2.5">
+            {FRAMES.map((f, i) => {
+              const on = i === mo;
+              const Icon = ICONS[i];
+              return (
+                <li
+                  key={f.t}
+                  className={`overflow-hidden rounded-2xl border transition-colors duration-300 ${on ? "border-primary/40 bg-primary/[0.06]" : "border-white/10 bg-surface"}`}
+                >
+                  <button
+                    type="button"
+                    aria-expanded={on}
+                    onClick={() => setMo(on ? -1 : i)}
+                    className="flex w-full items-center gap-4 p-4 text-left"
+                  >
+                    <span
+                      className={`grid h-12 w-12 shrink-0 place-items-center rounded-full border transition-colors duration-300 ${
+                        on ? "border-primary bg-primary text-primary-foreground" : "border-white/15 bg-white/[0.05] text-white/80"
+                      }`}
+                    >
+                      <Icon className="h-5 w-5" />
+                    </span>
+                    <span className="min-w-0 flex-1">
+                      <span className={`block text-[11px] font-semibold tracking-[0.18em] ${on ? "text-primary" : "text-white/35"}`}>{pad(i)}</span>
+                      <span className="text-display mt-0.5 block text-[1.25rem] leading-tight">{f.t}</span>
+                    </span>
+                    <ChevronDown className={`h-5 w-5 shrink-0 transition-transform duration-300 ${on ? "rotate-180 text-primary" : "text-white/40"}`} />
+                  </button>
+                  <div className={`grid transition-[grid-template-rows] duration-300 ease-out ${on ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
+                    <div className="overflow-hidden">
+                      <div className="px-4 pb-5">
+                        <p className="text-sm leading-relaxed text-white/70">{f.d}</p>
+                        <span className="mt-3 inline-block rounded-full border border-primary/40 px-3 py-1 text-[11px] font-medium uppercase tracking-[0.12em] text-primary">
+                          {f.tag}
+                        </span>
+                      </div>
+                    </div>
+                  </div>
+                </li>
+              );
+            })}
+          </ul>
+
+          <Link
+            to="/explore"
+            className="group mx-auto mt-8 flex h-12 w-fit items-center gap-2 rounded-full bg-primary px-7 text-sm font-semibold text-primary-foreground"
+          >
+            Trouver mon créateur <ArrowUpRight className="h-4 w-4" />
+          </Link>
+        </Reveal>
+
         {/* Visuel de la garantie active (desktop) */}
         <Reveal className="hidden lg:col-span-5 lg:block">
           <div className="sticky top-28 aspect-[4/5] overflow-hidden rounded-[1.75rem] border border-white/10 bg-surface text-white shadow-card">
@@ -231,7 +288,7 @@ export function WhyWeShootSection() {
         </Reveal>
 
         {/* Liste éditoriale */}
-        <Reveal delay={100} className="lg:col-span-7">
+        <Reveal delay={100} className="hidden lg:col-span-7 lg:block">
           <ul className="border-t border-white/10">
             {FRAMES.map((f, i) => {
               const on = i === active;
@@ -261,20 +318,12 @@ export function WhyWeShootSection() {
                     >
                       {f.tag}
                     </span>
-                    <Plus className={`h-5 w-5 shrink-0 transition-transform duration-300 lg:hidden ${on ? "rotate-45 text-primary" : "text-white/40"}`} />
                   </button>
 
                   <div className={`grid transition-[grid-template-rows] duration-500 ease-out ${on ? "grid-rows-[1fr]" : "grid-rows-[0fr]"}`}>
                     <div className="overflow-hidden">
                       <div className="pb-7 pl-[3.25rem] md:pl-[4.5rem]">
                         <p className="max-w-lg text-sm leading-relaxed text-muted-foreground md:text-base">{f.d}</p>
-                        {/* mobile : le visuel s'ouvre dans l'accordéon */}
-                        {on && (
-                          <div className="relative mt-5 aspect-[4/5] overflow-hidden rounded-2xl border border-white/10 bg-surface text-white lg:hidden">
-                            <div className="vf-in absolute inset-0">{f.v}</div>
-                            <Corners size="h-5 w-5" inset="inset-3" />
-                          </div>
-                        )}
                       </div>
                     </div>
                   </div>
