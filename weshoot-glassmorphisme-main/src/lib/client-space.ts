@@ -15,7 +15,9 @@ import { useBookings, type Booking } from "@/lib/store";
 /* Types                                                               */
 /* ------------------------------------------------------------------ */
 
-export type OrderStatus = "pending" | "confirmed" | "quote" | "delivered" | "validated" | "disputed" | "cancelled";
+export type OrderStatus = "pending" | "payment" | "confirmed" | "quote" | "delivered" | "validated" | "disputed" | "cancelled";
+
+export type PaymentMethod = "virement" | "card" | "paypal";
 
 export type DocFile = { name: string; size: string };
 
@@ -30,6 +32,8 @@ export type ClientOrder = {
   status: OrderStatus;
   brief: { documents: DocFile[]; message: string };
   quote?: { document: DocFile; message: string };
+  /** Paiement de la prestation, séquestré par WeShoot jusqu'à la validation des livrables. */
+  payment?: { method: PaymentMethod; paidAt: string; status: "paid" | "verifying" };
   deliverables?: { photos: string[]; deliveredAt: string; validatedAt?: string };
   review?: { rating: number; text: string; date: string };
   createdAt: string;
@@ -56,6 +60,7 @@ export const statusMeta: Record<OrderStatus, { label: string; className: string 
   pending: { label: "En attente", className: "bg-amber-500/15 text-amber-300" },
   confirmed: { label: "Confirmée", className: "bg-emerald-500/15 text-emerald-400" },
   quote: { label: "Devis reçu", className: "bg-sky-500/15 text-sky-300" },
+  payment: { label: "À payer", className: "bg-primary/15 text-primary" },
   delivered: { label: "Livrée", className: "bg-primary/15 text-primary" },
   validated: { label: "Validée", className: "bg-emerald-500/15 text-emerald-400" },
   disputed: { label: "Contestée", className: "bg-destructive/15 text-destructive" },
@@ -185,6 +190,8 @@ function seed(): State {
     },
   ];
 
+  orders.unshift(...testOrders());
+
   const messages: ChatMessage[] = [
     { id: "m1", orderId: "demo-mariage", from: "creator", text: "Bonjour ! Merci pour votre réservation. J'arrive sur place à 10h.", at: ago(5, 14, 22) },
     { id: "m2", orderId: "demo-mariage", from: "client", text: "Parfait, on vous attend. Le lieu exact a été ajouté au brief.", at: ago(5, 14, 30) },
@@ -226,6 +233,21 @@ function bookingToOrder(b: Booking): ClientOrder {
 /* Stockage local (démo, sans API)                                     */
 /* ------------------------------------------------------------------ */
 
+/** Commandes de test (démo) : rejouables à volonté pour tester l'acceptation d'un devis et le paiement. */
+export const TEST_ORDER_STATUS: Record<string, OrderStatus> = { "demo-test-devis": "quote", "demo-test-paiement": "payment" };
+
+function testOrders(): ClientOrder[] {
+  const quote = (name: string) => ({
+    document: { name, size: "290 Ko" },
+    message: "Devis de test : acceptez-le puis réglez la prestation pour essayer le paiement.",
+  });
+  const brief = { documents: [], message: "Commande de test pour essayer le paiement." };
+  return [
+    { id: "demo-test-devis", creatorId: "6", kind: "devis", category: "Test · Devis à accepter", date: isoDay(12), price: 4500, status: "quote", brief, quote: quote("Devis_test_daniel.pdf"), createdAt: ago(1) },
+    { id: "demo-test-paiement", creatorId: "2", kind: "devis", category: "Test · Paiement direct", date: isoDay(15), price: 2500, status: "payment", brief, quote: quote("Devis_test_marcus.pdf"), createdAt: ago(1) },
+  ];
+}
+
 const KEY = "weshoot.client-space";
 const EVENT = "weshoot:client-space";
 
@@ -236,7 +258,17 @@ function persist(state: State) {
 function load(): State {
   try {
     const raw = window.localStorage.getItem(KEY);
-    if (raw) return JSON.parse(raw) as State;
+    if (raw) {
+      const stored = JSON.parse(raw) as State;
+      // Les commandes de test sont ajoutées aux données déjà enregistrées.
+      const missing = testOrders().filter((t) => !stored.orders.some((o) => o.id === t.id));
+      if (missing.length) {
+        const merged = { ...stored, orders: [...missing, ...stored.orders] };
+        persist(merged);
+        return merged;
+      }
+      return stored;
+    }
   } catch {
     // données illisibles : on repart de la démo
   }
@@ -319,8 +351,8 @@ export function useClientSpace() {
   );
 
   const unreadCount = useMemo(() => orders.filter((o) => isUnread(o.id)).length, [orders, isUnread]);
-  /** Actions attendues du client : devis à traiter, livrables à valider. */
-  const actionCount = useMemo(() => orders.filter((o) => o.status === "quote" || o.status === "delivered").length, [orders]);
+  /** Actions attendues du client : devis à traiter, paiement à effectuer, livrables à valider. */
+  const actionCount = useMemo(() => orders.filter((o) => o.status === "quote" || o.status === "payment" || o.status === "delivered").length, [orders]);
 
   return {
     ready: state !== null,
@@ -330,8 +362,34 @@ export function useClientSpace() {
     actionCount,
     isUnread,
     lastMessageOf,
+    /** Accepter un devis ne confirme pas encore la prestation : il reste à la payer. */
     acceptQuote: (id: string) =>
-      mutate((s) => ({ ...s, orders: s.orders.map((o) => (o.id === id ? { ...o, status: "confirmed" as const } : o)) })),
+      mutate((s) => ({ ...s, orders: s.orders.map((o) => (o.id === id ? { ...o, status: "payment" as const } : o)) })),
+    /** Démo : remet une commande de test dans son état de départ pour rejouer le parcours. */
+    resetTestOrder: (id: string) =>
+      mutate((s) => ({
+        ...s,
+        orders: s.orders.map((o) => {
+          const status = TEST_ORDER_STATUS[o.id];
+          if (!status || o.id !== id) return o;
+          const { payment: _payment, ...rest } = o;
+          return { ...rest, status };
+        }),
+      })),
+    /** Enregistre le paiement (démo, aucun débit réel). Un virement reste « en vérification » côté WeShoot. */
+    payOrder: (id: string, method: PaymentMethod) =>
+      mutate((s) => ({
+        ...s,
+        orders: s.orders.map((o) =>
+          o.id === id
+            ? {
+                ...o,
+                status: "confirmed" as const,
+                payment: { method, paidAt: new Date().toISOString(), status: method === "virement" ? ("verifying" as const) : ("paid" as const) },
+              }
+            : o,
+        ),
+      })),
     refuseQuote: (id: string) =>
       mutate((s) => ({ ...s, orders: s.orders.map((o) => (o.id === id ? { ...o, status: "cancelled" as const } : o)) })),
     validateDelivery: (id: string) =>

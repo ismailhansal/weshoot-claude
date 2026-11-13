@@ -1,5 +1,5 @@
 import { createFileRoute, Link, useNavigate } from "@tanstack/react-router";
-import { FileText, Images, MessageSquare } from "lucide-react";
+import { FileText, MessageSquare } from "lucide-react";
 import { useEffect, useState } from "react";
 
 import { BriefDialog, QuoteDialog } from "@/components/ClientOrderDialogs";
@@ -114,7 +114,6 @@ function Dashboard() {
                   orders={space.orders}
                   onQuote={setQuoteId}
                   onBrief={setBriefId}
-                  onPay={(id) => navigate({ to: "/pay/$orderId", params: { orderId: id } })}
                   onMessage={(id) => go("messages", id)}
                   onDeliverables={(id) => go("livrables", id)}
                   onReview={() => go("avis")}
@@ -167,12 +166,12 @@ function Dashboard() {
 }
 
 /** Ce que le client doit comprendre en un coup d'œil : où en est la commande, et quoi faire ensuite. */
-function nextStep(o: ClientOrder, creatorName: string): { hint: string; action?: "quote" | "pay" | "validate" | "review" } {
+function nextStep(o: ClientOrder, creatorName: string): { hint: string; action?: "quote" | "validate" | "review" } {
   switch (o.status) {
     case "quote":
       return { hint: `${creatorName} vous a envoyé son devis.`, action: "quote" };
     case "payment":
-      return { hint: "Devis accepté : il ne reste qu'à payer pour confirmer.", action: "pay" };
+      return { hint: "Devis accepté : ouvrez-le pour régler la prestation et confirmer.", action: "quote" };
     case "delivered":
       return { hint: "Vos livrables sont prêts. Vérifiez-les et validez.", action: "validate" };
     case "pending":
@@ -195,7 +194,6 @@ function ReservationsList({
   orders,
   onQuote,
   onBrief,
-  onPay,
   onMessage,
   onDeliverables,
   onReview,
@@ -203,7 +201,6 @@ function ReservationsList({
   orders: ClientOrder[];
   onQuote: (id: string) => void;
   onBrief: (id: string) => void;
-  onPay: (id: string) => void;
   onMessage: (id: string) => void;
   onDeliverables: (id: string) => void;
   onReview: () => void;
@@ -230,11 +227,9 @@ function ReservationsList({
     const creatorName = creator?.name ?? "Prestataire";
     const meta = statusMeta[o.status];
     const step = nextStep(o, creatorName);
-    const canSeeDeliverables = !!o.deliverables && (o.status === "validated" || o.status === "disputed");
-    const actionLabel = { quote: "Voir le devis", pay: "Payer", validate: "Voir et valider", review: "Laisser un avis" };
+    const actionLabel = { quote: "Voir le devis", validate: "Voir et valider", review: "Laisser un avis" };
     const run = {
       quote: () => onQuote(o.id),
-      pay: () => onPay(o.id),
       validate: () => onDeliverables(o.id),
       review: () => onReview(),
     };
@@ -265,11 +260,6 @@ function ReservationsList({
             <button type="button" onClick={() => onMessage(o.id)} className={glassBtn}>
               <MessageSquare className="h-3.5 w-3.5 text-primary" /> Message
             </button>
-            {canSeeDeliverables && step.action !== "review" && (
-              <button type="button" onClick={() => onDeliverables(o.id)} className={glassBtn}>
-                <Images className="h-3.5 w-3.5 text-primary" /> Livrables
-              </button>
-            )}
           </div>
           {step.action && (
             <button type="button" onClick={run[step.action]} className={primaryBtn}>

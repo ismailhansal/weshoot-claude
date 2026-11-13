@@ -3,7 +3,7 @@ import { ArrowLeft, Banknote, CalendarDays, CheckCircle2, CreditCard, FileText, 
 import { useState, type ReactNode } from "react";
 
 import { Logo } from "@/components/Logo";
-import { formatDate, useClientSpace, type PaymentMethod } from "@/lib/client-space";
+import { formatDate, TEST_ORDER_STATUS, useClientSpace, type PaymentMethod } from "@/lib/client-space";
 import { getCreator } from "@/lib/creators";
 import { useDemoSession } from "@/lib/demo-auth";
 
@@ -121,6 +121,18 @@ function PayPage() {
               Écrire au prestataire
             </Link>
           </div>
+          {order.id in TEST_ORDER_STATUS && (
+            <button
+              type="button"
+              onClick={() => {
+                space.resetTestOrder(order.id);
+                if (TEST_ORDER_STATUS[order.id] === "quote") backToDashboard();
+              }}
+              className="mt-5 cursor-pointer text-xs text-slate-500 underline underline-offset-4 transition hover:text-slate-900"
+            >
+              Commande de test : rejouer le paiement
+            </button>
+          )}
         </div>
       </Shell>
     );
