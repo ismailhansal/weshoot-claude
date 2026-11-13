@@ -125,6 +125,11 @@ function BookingFlow() {
     }
   }, [session.ready, session.isAuthenticated, id, offerParam, navigate]);
 
+  // À chaque changement d'étape (Suivant / Précédent), on remonte en haut de page.
+  useEffect(() => {
+    window.scrollTo({ top: 0, left: 0 });
+  }, [stepIndex]);
+
   if (!session.ready || !session.isAuthenticated) {
     return (
       <div className="min-h-screen bg-background text-foreground">
