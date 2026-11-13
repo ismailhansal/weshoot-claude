@@ -1,12 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
-import { ArrowUpRight, ChevronRight } from "lucide-react";
+import { ArrowUpRight } from "lucide-react";
 
-import { CreatorCard } from "@/components/CreatorCard";
+import { CreatorsShowcase } from "@/components/home/CreatorsShowcase";
 import { HeroSection } from "@/components/HeroSection";
+import { HowItWorksSection } from "@/components/home/HowItWorksSection";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-import { ALL_CATEGORIES, categories, creators } from "@/lib/creators";
-import { useSaved } from "@/lib/store";
+import { WhyWeShootSection } from "@/components/home/WhyWeShootSection";
+import { creators } from "@/lib/creators";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -23,85 +24,15 @@ export const Route = createFileRoute("/")({
 });
 
 function Index() {
-  const { saved } = useSaved();
-
-  const featured = creators.slice(0, 6);
-
   return (
     <div className="min-h-screen overflow-x-clip bg-background text-foreground">
       <SiteHeader />
 
       <HeroSection />
 
-      {/* Feed */}
-      <section className="mx-auto max-w-7xl px-6 pb-32">
-        <div className="flex items-center justify-between gap-4 mb-6">
-          <h2 className="text-display text-3xl md:text-4xl">The feed</h2>
-          <div className="hidden md:flex items-center gap-2 text-xs text-muted-foreground">
-            <span className="h-2 w-2 rounded-sm bg-primary animate-pulse" /> Live · {creators.length} créateurs en ligne
-          </div>
-        </div>
-        <div className="flex gap-2 overflow-x-auto pb-2 -mx-6 px-6 [scrollbar-width:none] [&::-webkit-scrollbar]:hidden">
-          {categories.map((c) => (
-            <Link
-              key={c}
-              to="/explore"
-              search={c === ALL_CATEGORIES ? {} : { category: c }}
-              className={`whitespace-nowrap rounded-xl px-4 h-9 text-sm font-medium border transition flex items-center ${
-                c === ALL_CATEGORIES
-                  ? "bg-foreground text-background border-foreground"
-                  : "bg-surface text-muted-foreground border-border hover:text-foreground"
-              }`}
-            >
-              {c}
-            </Link>
-          ))}
-        </div>
-
-        <div className="mt-8 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
-          {featured.map((c, i) => (
-            <CreatorCard key={c.id} creator={c} featured={i === 0} />
-          ))}
-        </div>
-
-        <div className="mt-10 text-center">
-          <Link
-            to="/explore"
-            className="inline-flex h-12 items-center gap-2 rounded-xl bg-foreground text-background px-7 text-sm font-semibold hover:opacity-90 transition"
-          >
-            Voir tous les créateurs {saved.length > 0 && `· ${saved.length} favori${saved.length > 1 ? "s" : ""}`} <ArrowUpRight className="h-4 w-4" />
-          </Link>
-        </div>
-      </section>
-
-      {/* How it works teaser */}
-      <section className="mx-auto max-w-7xl px-6 pb-32">
-        <div className="rounded-[2rem] bg-surface-elevated border border-border p-10 md:p-16 relative overflow-hidden">
-          <div className="pointer-events-none absolute -top-32 -right-32 h-96 w-96 rounded-[3rem] opacity-40"
-               style={{ background: "radial-gradient(circle, rgb(250 92 7 / 0.5), transparent 70%)" }} />
-          <div className="text-xs uppercase tracking-[0.2em] text-muted-foreground">Comment ça marche</div>
-          <h3 className="text-display text-4xl md:text-6xl mt-4 max-w-3xl">Trois étapes du feed au shooting.</h3>
-          <div className="mt-12 grid md:grid-cols-3 gap-8">
-            {[
-              { n: "01", t: "Scroll the feed", d: "Découvrez des créateurs filtrés par ville, style et budget. Likez pour sauvegarder." },
-              { n: "02", t: "Comparez & échangez", d: "Ouvrez les portfolios, lisez les avis, discutez directement. Sans intermédiaire." },
-              { n: "03", t: "Réservez & shootez", d: "Paiement sécurisé conservé en séquestre, versé quand vous recevez vos fichiers." },
-            ].map((s) => (
-              <div key={s.n} className="relative">
-                <div className="text-display text-5xl text-primary">{s.n}</div>
-                <div className="mt-3 text-xl font-medium">{s.t}</div>
-                <p className="mt-2 text-sm text-muted-foreground">{s.d}</p>
-              </div>
-            ))}
-          </div>
-          <Link
-            to="/how-it-works"
-            className="mt-10 inline-flex items-center gap-1.5 text-sm font-semibold text-primary hover:opacity-80 transition"
-          >
-            Tout savoir sur le fonctionnement <ChevronRight className="h-4 w-4" />
-          </Link>
-        </div>
-      </section>
+      <CreatorsShowcase />
+      <HowItWorksSection />
+      <WhyWeShootSection />
 
       {/* CTA for creators */}
       <section className="mx-auto max-w-7xl px-6 pb-40">
