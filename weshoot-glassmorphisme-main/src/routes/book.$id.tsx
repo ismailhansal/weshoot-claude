@@ -525,7 +525,7 @@ function BookingFlow() {
                           </div>
                           <div className="min-w-0">
                             <label htmlFor="project-time" className={labelClass}>Heure</label>
-                            <input id="project-time" type="time" value={time} onChange={(event) => setTime(event.target.value)} className={`${fieldClass} block min-w-0 max-w-full appearance-none px-3 sm:px-4`} />
+                            <input id="project-time" type="time" value={time} onChange={(event) => setTime(event.target.value)} className={`${fieldClass} flex min-w-0 max-w-full appearance-none items-center px-3 sm:px-4 [&::-webkit-date-and-time-value]:text-left [&::-webkit-datetime-edit]:p-0`} />
                           </div>
                         </div>
                         <div className="mt-3 flex flex-wrap gap-2">
