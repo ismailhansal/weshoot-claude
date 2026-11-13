@@ -7,7 +7,7 @@ type LogoProps = {
 
 /** Logo WeShoot : « wesh » en blanc, « oo » en orange, « t » en blanc, sans pastille. */
 export function Logo({ className = "text-2xl", tone = "dark" }: LogoProps) {
-  const base = tone === "light" ? "text-slate-900" : "text-white";
+  const base = tone === "light" ? "text-slate-900" : "text-foreground";
   return (
     <span className={`text-display ${className}`}>
       <span className={base}>wesh</span>

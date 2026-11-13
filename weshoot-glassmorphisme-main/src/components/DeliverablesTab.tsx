@@ -21,8 +21,11 @@ type Props = {
   onContest: (id: string, reason: string) => void;
 };
 
-function watermark(label: string) {
-  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='380' height='200'><text x='20' y='120' transform='rotate(-24 190 100)' fill='white' fill-opacity='0.4' font-family='Inter,Arial,sans-serif' font-size='12' letter-spacing='3'>WESHOOT · ${label.toUpperCase()} · APERÇU PROTÉGÉ</text></svg>`;
+function watermark(label: string, compact = false) {
+  // Version compacte pour les petites vignettes mobiles : le motif tient dans une cellule de ~170 px.
+  const [w, h, size, spacing, x, y] = compact ? [170, 110, 9, 2, 8, 66] : [380, 200, 12, 3, 20, 120];
+  const text = compact ? `WESHOOT · ${label.toUpperCase()}` : `WESHOOT · ${label.toUpperCase()} · APERÇU PROTÉGÉ`;
+  const svg = `<svg xmlns='http://www.w3.org/2000/svg' width='${w}' height='${h}'><text x='${x}' y='${y}' transform='rotate(-24 ${w / 2} ${h / 2})' fill='white' fill-opacity='0.5' font-family='Inter,Arial,sans-serif' font-size='${size}' letter-spacing='${spacing}'>${text}</text></svg>`;
   return `url("data:image/svg+xml,${encodeURIComponent(svg)}")`;
 }
 
@@ -143,7 +146,10 @@ export function DeliverablesTab({ orders, selectedId, onSelect, onValidate, onCo
           >
             <img src={src} alt={`Livrable ${i + 1} de ${creatorName}`} draggable={!protectedPreview} loading="lazy" className="h-full w-full object-cover" />
             {protectedPreview && (
-              <div aria-hidden className="pointer-events-none absolute inset-0" style={{ backgroundImage: watermark(creatorName), backgroundSize: "380px 200px" }} />
+              <>
+                <div aria-hidden className="pointer-events-none absolute inset-0 md:hidden" style={{ backgroundImage: watermark(creatorName, true), backgroundSize: "170px 110px" }} />
+                <div aria-hidden className="pointer-events-none absolute inset-0 hidden md:block" style={{ backgroundImage: watermark(creatorName), backgroundSize: "380px 200px" }} />
+              </>
             )}
             {validated && (
               <button

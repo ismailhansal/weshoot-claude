@@ -17,6 +17,7 @@ import avatar5 from "@/assets/avatar-5.jpg";
 import avatar6 from "@/assets/avatar-6.jpg";
 import { Logo } from "@/components/Logo";
 import { MobileNav } from "@/components/MobileNav";
+import { ThemeToggle } from "@/components/ThemeToggle";
 import { useClientSpace } from "@/lib/client-space";
 import { pendingRequestCount, useCreatorSpace } from "@/lib/creator-space";
 import { endDemoSession, getDisplayName, useDemoSession } from "@/lib/demo-auth";
@@ -51,6 +52,7 @@ export function SiteHeader() {
   const [open, setOpen] = useState(false);
   const session = useDemoSession();
   const onExplore = useRouterState({ select: (st) => st.location.pathname.startsWith("/explore") });
+  const onClientDashboard = useRouterState({ select: (st) => st.location.pathname === "/dashboard" });
   const space = useClientSpace();
   const isCreator = session.isAuthenticated && session.role === "creator";
   const creator = useCreatorSpace(isCreator);
@@ -80,6 +82,7 @@ export function SiteHeader() {
         </nav>
 
         <div className="flex items-center gap-2">
+          {onClientDashboard && !isCreator && <ThemeToggle />}
           {!isCreator && (
             <>
           <Link
