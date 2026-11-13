@@ -302,7 +302,7 @@ function BookingFlow() {
           </Link>
 
           {/* Mobile / tablette : prestataire résumé en une ligne */}
-          <div className="glass mt-3 flex items-center gap-3 rounded-2xl p-2.5 lg:hidden">
+          <div className="glass sticky top-2 z-30 mt-3 flex items-center gap-3 rounded-2xl bg-background/80 p-2.5 backdrop-blur-xl lg:hidden">
             <img src={creator.avatar} alt={creator.name} className="h-11 w-11 shrink-0 rounded-xl object-cover ring-2 ring-primary/80" />
             <div className="min-w-0 flex-1">
               <p className="truncate text-sm font-semibold leading-tight">{creator.name}</p>
@@ -654,8 +654,8 @@ function BookingFlow() {
               </section>
 
               {/* Mobile : barre d'actions collée en bas pour ne plus avoir à scroller jusqu'au bouton */}
-              <div className="sticky bottom-0 z-30 -mx-5 mt-2 flex items-center justify-between gap-3 bg-gradient-to-t from-background from-65% to-transparent px-5 pb-3 pt-6 sm:static sm:mx-0 sm:mt-6 sm:bg-none sm:p-0">
-                <button type="button" onClick={() => setStepIndex((current) => Math.max(0, current - 1))} disabled={stepIndex === 0} className={`glass inline-flex h-11 items-center gap-2 rounded-xl px-4 text-sm font-medium transition hover:border-primary/60 disabled:opacity-30 sm:h-12 sm:px-5 ${stepIndex === 0 ? "max-sm:hidden" : ""}`} aria-label="Précédent">
+              <div className="sticky bottom-0 z-30 -mx-5 mt-2 flex items-center justify-between gap-3 px-5 pb-3 pt-4 sm:static sm:mx-0 sm:mt-6 sm:p-0">
+                <button type="button" onClick={() => setStepIndex((current) => Math.max(0, current - 1))} disabled={stepIndex === 0} className={`glass inline-flex h-11 items-center gap-2 rounded-xl px-4 text-sm font-medium transition hover:border-primary/60 disabled:opacity-30 max-sm:bg-neutral-900 sm:h-12 sm:px-5 ${stepIndex === 0 ? "max-sm:hidden" : ""}`} aria-label="Précédent">
                   <ArrowLeft className="h-4 w-4" /> <span className="hidden sm:inline">Précédent</span>
                 </button>
                 {step === "summary" ? (
@@ -663,7 +663,7 @@ function BookingFlow() {
                     <Send className="h-4 w-4" /> Envoyer au prestataire
                   </button>
                 ) : (
-                  <button type="button" onClick={() => canContinue && setStepIndex((current) => Math.min(steps.length - 1, current + 1))} disabled={!canContinue} className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-7 text-sm font-semibold sm:h-12 sm:flex-none text-primary-foreground shadow-glow transition hover:opacity-90 disabled:bg-white/[0.08] disabled:text-muted-foreground disabled:shadow-none sm:disabled:bg-primary sm:disabled:text-primary-foreground sm:disabled:opacity-40">
+                  <button type="button" onClick={() => canContinue && setStepIndex((current) => Math.min(steps.length - 1, current + 1))} disabled={!canContinue} className="inline-flex h-11 flex-1 items-center justify-center gap-2 rounded-xl bg-primary px-7 text-sm font-semibold sm:h-12 sm:flex-none text-primary-foreground shadow-glow transition hover:opacity-90 disabled:bg-neutral-800 disabled:text-muted-foreground disabled:shadow-none sm:disabled:bg-primary sm:disabled:text-primary-foreground sm:disabled:opacity-40">
                     Suivant <ArrowRight className="h-4 w-4" />
                   </button>
                 )}
