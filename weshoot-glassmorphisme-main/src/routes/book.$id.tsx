@@ -49,7 +49,7 @@ const newVideoSpec = (): VideoSpec => ({ duration: "30 secondes", format: "Verti
 const deliveryDelays = ["Pas de préférence", "48 heures", "3 jours", "5 jours", "7 jours", "10 jours", "15 jours", "1 mois"];
 const stepTitles = { choice: "Choix", type: "Type", date: "Date & lieu", brief: "Brief", summary: "Récap" } as const;
 
-const fieldClass = "h-12 w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 text-sm text-foreground outline-none backdrop-blur transition [color-scheme:dark] placeholder:text-muted-foreground/60 hover:border-white/20 focus:border-primary focus:bg-white/[0.06] focus:ring-2 focus:ring-primary/25";
+const fieldClass = "h-12 w-full rounded-xl border border-white/10 bg-white/[0.04] px-4 text-sm text-foreground outline-none backdrop-blur transition [color-scheme:dark] [&>option]:bg-neutral-900 [&>option]:text-white placeholder:text-muted-foreground/60 hover:border-white/20 focus:border-primary focus:bg-white/[0.06] focus:ring-2 focus:ring-primary/25";
 const labelClass = "mb-2 block text-[11px] font-medium uppercase tracking-[0.18em] text-muted-foreground";
 const tileBase = "relative rounded-2xl border text-left backdrop-blur transition duration-300";
 const tileIdle = "border-white/10 bg-white/[0.04] hover:border-white/25 hover:bg-white/[0.07]";
@@ -398,13 +398,13 @@ function BookingFlow() {
                         { key: "offer", opt: "Option A", title: "Choisir une offre", text: "Sélectionne un pack pré-défini par le prestataire." },
                         { key: "project", opt: "Option B", title: "Décrire mon projet", text: "Demande un devis personnalisé." },
                       ] as const).map(({ key, opt, title, text }) => (
-                        <button key={key} type="button" aria-pressed={mode === key} onClick={() => chooseMode(key)} className={`${tileBase} flex flex-col justify-start px-4 py-3.5 sm:min-h-[10.5rem] sm:p-6 ${mode === key ? tileOn : tileIdle}`}>
+                        <button key={key} type="button" aria-pressed={mode === key} onClick={() => chooseMode(key)} className={`${tileBase} flex flex-col justify-start px-4 py-3.5 sm:p-5 ${mode === key ? tileOn : tileIdle}`}>
                           <span className="flex items-center justify-between">
                             <span className="text-[10px] font-semibold uppercase tracking-[0.18em] text-primary sm:text-[11px]">{opt}</span>
                             <Radio on={mode === key} />
                           </span>
-                          <span className="text-display mt-1 block text-lg sm:mt-8 sm:text-2xl">{title}</span>
-                          <span className="mt-0.5 block text-xs text-muted-foreground sm:mt-1.5 sm:text-sm">{text}</span>
+                          <span className="text-display mt-1 block text-lg sm:mt-3 sm:text-xl">{title}</span>
+                          <span className="mt-0.5 block text-xs text-muted-foreground sm:text-sm">{text}</span>
                         </button>
                       ))}
                     </div>
@@ -448,16 +448,18 @@ function BookingFlow() {
                 )}
 
                 {step === "type" && (
-                  <div className="grid gap-4 sm:grid-cols-3">
+                  <div className="grid gap-2.5 sm:grid-cols-3 sm:gap-3">
                     {([
                       { type: "Photo", text: "Uniquement photos" },
                       { type: "Vidéo", text: "Uniquement vidéos" },
                       { type: "Photo & vidéo", text: "Les deux" },
                     ] as const).map(({ type, text }) => (
-                      <button key={type} type="button" aria-pressed={serviceType === type} onClick={() => setServiceType(type)} className={`${tileBase} flex min-h-[8.5rem] flex-col justify-start p-5 ${serviceType === type ? tileOn : tileIdle}`}>
-                        <span className="flex justify-end"><Radio on={serviceType === type} /></span>
-                        <span className="text-display mt-6 block text-xl">{type}</span>
-                        <span className="mt-1 block text-sm text-muted-foreground">{text}</span>
+                      <button key={type} type="button" aria-pressed={serviceType === type} onClick={() => setServiceType(type)} className={`${tileBase} flex items-center justify-between gap-3 px-4 py-3.5 sm:px-5 sm:py-4 ${serviceType === type ? tileOn : tileIdle}`}>
+                        <span className="min-w-0 text-left">
+                          <span className="text-display block text-lg sm:text-xl">{type}</span>
+                          <span className="mt-0.5 block text-xs text-muted-foreground sm:text-sm">{text}</span>
+                        </span>
+                        <Radio on={serviceType === type} />
                       </button>
                     ))}
                   </div>
@@ -499,7 +501,7 @@ function BookingFlow() {
                                   <CalendarDays aria-hidden className="h-4 w-4 shrink-0 text-primary" />
                                 </button>
                               </PopoverTrigger>
-                              <PopoverContent align="start" collisionPadding={12} className="glass-strong w-auto max-w-[calc(100vw-1.5rem)] rounded-2xl border-white/10 p-0">
+                              <PopoverContent align="start" collisionPadding={12} className="w-auto max-w-[calc(100vw-1.5rem)] rounded-2xl border-white/10 bg-neutral-900 p-0 shadow-2xl">
                                 <Calendar
                                   mode="single"
                                   locale={fr}
