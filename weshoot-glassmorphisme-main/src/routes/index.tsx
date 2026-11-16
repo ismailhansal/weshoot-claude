@@ -7,6 +7,9 @@ import { HowItWorksSection } from "@/components/home/HowItWorksSection";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { WhyWeShootSection } from "@/components/home/WhyWeShootSection";
+import { MomentsSection } from "@/components/home/MomentsSection";
+import { TopCreators } from "@/components/home/TopCreators";
+
 import { creators } from "@/lib/creators";
 
 export const Route = createFileRoute("/")({
@@ -31,6 +34,8 @@ function Index() {
       <HeroSection />
 
       <CreatorsShowcase />
+      <TopCreators />
+      <MomentsSection />
       <HowItWorksSection />
       <WhyWeShootSection />
 
